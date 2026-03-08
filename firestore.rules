@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to check if user is admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'enmssellchanges@gmail.com';
+    }
+
+    // Settings (countries, spreadsheet)
+    match /settings/{document} {
+      allow read: if true;
+      allow write: if request.auth != null; // Changed to allow any authenticated user to update rates
+    }
+
+    // Transfers
+    match /transfers/{document} {
+      // Users can only see their own transfers, admins can see all
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || isAdmin());
+      // Users can create transfers, but must own the userId field
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // Admins can update transfers (to authorize/reject)
+      allow update: if isAdmin();
+      // Admins can delete transfers for space management
+      allow delete: if isAdmin();
+    }
+
+    // Users collection (FCM tokens, Profiles & Beneficiaries)
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read: if isAdmin();
+    }
+
+    // Beneficiaries collection
+    match /beneficiaries/{document} {
+      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
+    }
+  }
+}
+
