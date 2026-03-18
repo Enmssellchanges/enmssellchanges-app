@@ -29,7 +29,9 @@ if (typeof firebase !== 'undefined') {
   // PWA Service Worker Registration
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.warn('[SW] Registration failed:', err));
     });
   }
 }
@@ -89,6 +91,10 @@ var quickDestCountry = countries[1]; // Default to VES
 // Register Firestore real-time listeners as early as possible so that
 // Firestore data is available by the time renderHomeRates() fires.
 let _listenersStarted = false;
+/**
+ * Initializes Firestore real-time listeners for settings.
+ * Ensures the listeners are only started once.
+ */
 function startFirebaseListeners() {
   if (_listenersStarted) return;
   if (db && typeof window.FirebaseAPI !== 'undefined') {
@@ -120,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
   calculateQuick();
   calculate();
   renderUserAccounts();
-  initSpreadsheet();
+  checkPromotion();
 
   // Safety-net: if Firebase wasn't ready at script-load time, register now
   startFirebaseListeners();
@@ -142,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Listen to user transactions globally if logged in
   auth.onAuthStateChanged(firebaseUser => {
     if (firebaseUser) {
+      checkPromotion();
       db.collection('transfers').where('userId', '==', firebaseUser.uid).onSnapshot(snapshot => {
         const txs = [];
         snapshot.forEach(doc => txs.push({
@@ -210,6 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 let binanceInterval = null;
+/**
+ * Initializes the Binance P2P monitor, fetches initial data,
+ * and sets up an interval to refresh data every 5 minutes.
+ */
 function initBinanceMonitor() {
   const icon = document.getElementById('sync-icon');
   if (icon) icon.classList.add('spin');
@@ -233,12 +244,52 @@ if (messaging) {
 const style = document.createElement('style');
 style.innerHTML = `
     @keyframes slideInNotification {
-    from { transform: translateX(120 %); opacity: 0; }
+    from { transform: translateX(120%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
     }
     @keyframes slideOutNotification {
     from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(120 %); opacity: 0; }
+    to { transform: translateX(120%); opacity: 0; }
     }
     `;
 document.head.appendChild(style);
+
+/**
+ * Checks if there is an active promotional banner to display.
+ * Prevents showing the banner multiple times in the same session.
+ */
+function checkPromotion() {
+    const sessionKey = 'promoShown_' + (auth && auth.currentUser ? auth.currentUser.uid : 'guest');
+    if (sessionStorage.getItem(sessionKey) === 'true') {
+        return; // Ya se mostró en esta sesión para este usuario/invitado
+    }
+
+    // Asegurar que db esté inicializado
+    if (typeof db === 'undefined') {
+        setTimeout(checkPromotion, 500);
+        return;
+    }
+
+    db.doc('settings/promotion').get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            const now = new Date();
+            // Handle possibility of missing expiresAt
+            const expiresAt = data.expiresAt ? (data.expiresAt.toDate ? data.expiresAt.toDate() : new Date(data.expiresAt)) : null;
+
+            if (data.active && data.imageUrl && expiresAt && now < expiresAt) {
+                // Mostrar la promoción
+                if (typeof openPromoModal === 'function') {
+                    openPromoModal(data.imageUrl, data.link);
+                    sessionStorage.setItem(sessionKey, 'true');
+                } else {
+                    console.error("openPromoModal no está definido");
+                }
+            } else {
+
+            }
+        }
+    }).catch(err => {
+        console.error("Error checking promotion:", err);
+    });
+}

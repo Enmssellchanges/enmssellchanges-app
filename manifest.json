@@ -1,18 +1,37 @@
 {
     "name": "Enmssell Changes Premium",
     "short_name": "Enmssell",
-    "description": "Premium Money Exchange Service",
-    "start_url": "/index.html",
+    "id": "com.enmssell.changes",
+    "description": "Servicio Premium de Cambio de Divisas",
+    "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "background_color": "#0d0d0d",
     "theme_color": "#cca353",
     "icons": [
         {
             "src": "logo-enmssell.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "logo-enmssell.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "logo-enmssell.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ],
-    "orientation": "portrait"
+    "orientation": "portrait",
+    "lang": "es",
+    "categories": [
+        "finance",
+        "business"
+    ]
 }

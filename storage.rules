@@ -24,6 +24,12 @@ service firebase.storage {
       allow write: if isAdmin();
     }
 
+    // Promos: Anyone can read, Admin can write.
+    match /promos/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Default rule: block everything else
     match /{allPaths=**} {
       allow read, write: if false;

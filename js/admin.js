@@ -7,6 +7,10 @@ function loadAdminData() {
     const historyList = document.getElementById('admin-history-list');
     if (typeof db === 'undefined') return;
 
+    if (typeof loadPromoData === 'function') {
+        loadPromoData();
+    }
+
     // Clear existing listeners to avoid leaks/duplicates
     if (adminPendingUnsubscribe) adminPendingUnsubscribe();
     if (adminHistoryUnsubscribe) adminHistoryUnsubscribe();
@@ -401,7 +405,7 @@ function renderAdminHistory(filteredData = null) {
                         <div class="avatar" style="width: 35px; height: 35px; font-size: 0.8rem; background: ${statusColor}22; color: ${statusColor};">${tx.initials || '??'}</div>
                         <div>
                             <strong style="color: white; font-size: 0.9rem;">${tx.name}</strong><br>
-                            <small style="display: block; color: var(--text-muted); margin: 2px 0;">${new Date(tx.timestamp || tx.date).toLocaleTimeString('es-ES')} | <b style="color:var(--gold)">${tx.amount}</b></small>
+                            <small style="display: block; color: var(--text-muted); margin: 2px 0;">${new Date(tx.timestamp?.toMillis ? tx.timestamp.toMillis() : (tx.timestamp || tx.date)).toLocaleString('es-ES')} | <b style="color:var(--gold)">${tx.amount}</b></small>
                             <small style="display: block; color: var(--accent-teal); font-family: monospace; font-size: 0.7rem; letter-spacing: 0.5px;">ID: ${tx.id}</small>
                             <small style="display: block; color: var(--gold); font-family: monospace; font-size: 0.7rem; margin-top: 4px;">Usuario: ${tx.userEmail || 'N/A'}</small>
                             <button class="btn-signin" style="font-size: 0.6rem; padding: 2px 6px; margin-top: 4px; border-color: var(--accent-teal); color: var(--accent-teal);" onclick="viewUserHistory('${tx.userEmail || ''}')">Ver Historial</button>
@@ -722,30 +726,6 @@ function toggleAdminHistory() {
     icon.style.transition = 'transform 0.3s ease';
 }
 
-function filterAdminHistory() {
-    const query = document.getElementById('admin-history-search').value.toLowerCase();
-    const startDate = document.getElementById('admin-history-date-start').value;
-    const endDate = document.getElementById('admin-history-date-end').value;
-
-    const filtered = adminHistoryData.filter(tx => {
-        const matchesQuery = !query ||
-            tx.id.toLowerCase().includes(query) ||
-            tx.name.toLowerCase().includes(query) ||
-            (tx.amount && tx.amount.toLowerCase().includes(query));
-
-        let matchesDate = true;
-        if (startDate || endDate) {
-            const txDate = new Date(tx.timestamp || tx.date);
-            if (startDate && txDate < new Date(startDate + 'T00:00:00')) matchesDate = false;
-            if (endDate && txDate > new Date(endDate + 'T23:59:59')) matchesDate = false;
-        }
-
-        return matchesQuery && matchesDate;
-    });
-
-    renderAdminHistory(filtered);
-}
-
 async function confirmAuthorization(btn) {
     if (!adminProofBase64) {
         alert("Por favor sube el comprobante de pago para el cliente.");
@@ -795,7 +775,7 @@ function renderRatesEditor() {
     let bcvHtml = `
     <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 12px; border: 1px solid var(--gold); margin-bottom: 1rem;">
         <div class="flex-center gap-sm">
-            <img src="logo-bcv.png?v=2" width="20" style="object-fit: contain;">
+            <img src="assets/img/logo-bcv.webp?v=2" width="20" style="object-fit: contain;">
             <span class="font-bold text-teal" style="font-size: 0.9rem;">DOLAR BCV</span>
             <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2rem;">
                 <small style="color: var(--gold); font-size: 0.65rem;">Tasa Oficial (Bs/USD)</small>
@@ -812,7 +792,7 @@ function renderRatesEditor() {
     let monitorHtml = `
     <div style="display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 12px; border: 1px solid var(--accent); margin-bottom: 1rem;">
         <div class="flex-center gap-sm">
-            <img src="logo-monitor.png?v=2" width="20" style="object-fit: contain; border-radius: 50%;">
+            <img src="assets/img/logo-monitor.webp?v=2" width="20" style="object-fit: contain; border-radius: 50%;">
             <span class="font-bold text-teal" style="font-size: 0.9rem;">DOLAR PARALELO</span>
             <div style="flex: 1; display: flex; flex-direction: column; gap: 0.2rem;">
                 <small style="color: var(--accent); font-size: 0.65rem;">Tasa (Bs/USD)</small>
@@ -1048,4 +1028,159 @@ async function sendPromoNotification() {
         btn.disabled = false;
         btn.innerHTML = '<span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">campaign</span> Enviar Notificación';
     }
+}
+
+// ==========================================
+// PANTALLA PROMOCIONAL (MODAL INICIAL)
+// ==========================================
+
+let promoImageFile = null;
+
+function handlePromoImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+        showToast("⚠️ ATENCIÓN", "La imagen es muy grande. Intenta con una menor a 2MB.", true);
+        return;
+    }
+
+    promoImageFile = file;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('promo-image-preview');
+        const container = document.getElementById('promo-preview-container');
+        preview.src = e.target.result;
+        container.style.display = 'block';
+    }
+    reader.readAsDataURL(file);
+}
+
+async function savePromoData() {
+    const expirationInput = document.getElementById('promo-expiration').value;
+    const linkInput = document.getElementById('promo-link').value;
+    const btn = document.getElementById('btn-save-promo');
+
+    if (!expirationInput) {
+        alert("Debes seleccionar una fecha y hora de expiración.");
+        return;
+    }
+
+    const expDate = new Date(expirationInput);
+    if (expDate <= new Date()) {
+        alert("La fecha de expiración debe ser en el futuro.");
+        return;
+    }
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-icons spin" style="font-size:16px; vertical-align:middle; margin-right:4px;">autorenew</span> Guardando...';
+
+        let imageUrl = null;
+
+        // Si hay una nueva imagen seleccionada, subirla
+        if (promoImageFile) {
+            const storageRef = firebase.storage().ref();
+            const promoRef = storageRef.child(`promos/promo_${Date.now()}_${promoImageFile.name.replace(/[^a-zA-Z0-9.]/g, '')}`);
+            const snapshot = await promoRef.put(promoImageFile);
+            imageUrl = await snapshot.ref.getDownloadURL();
+        } else {
+            // Si no hay imagen nueva, conservar la que ya está si existe
+            const previewImg = document.getElementById('promo-image-preview');
+            if (previewImg.src && !previewImg.src.startsWith('data:')) {
+                imageUrl = previewImg.src;
+            }
+        }
+
+        if (!imageUrl) {
+            alert("Debes seleccionar una imagen para la promoción.");
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-icons" style="font-size:16px; margin-right:4px;">save</span> Guardar Promoción';
+            return;
+        }
+
+        await db.doc('settings/promotion').set({
+            imageUrl: imageUrl,
+            expiresAt: firebase.firestore.Timestamp.fromDate(expDate),
+            link: linkInput || "",
+            active: true,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showToast("✅ EXITO", "Promoción guardada correctamente.");
+        loadPromoData(); // Recargar la vista
+
+    } catch (error) {
+        console.error("Error guardando promoción:", error);
+        alert("Error al guardar la promoción: " + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-icons" style="font-size:16px; margin-right:4px;">save</span> Guardar Promoción';
+    }
+}
+
+async function deleteCurrentPromo() {
+    if (!confirm("¿Seguro que deseas eliminar/desactivar la promoción actual?")) return;
+
+    try {
+        const btn = document.getElementById('btn-delete-promo');
+        btn.disabled = true;
+        btn.innerText = "Eliminando...";
+
+        await db.doc('settings/promotion').update({
+            active: false
+        });
+
+        // Limpiar formulario
+        document.getElementById('promo-image-upload').value = "";
+        document.getElementById('promo-expiration').value = "";
+        document.getElementById('promo-link').value = "";
+        document.getElementById('promo-preview-container').style.display = "none";
+        document.getElementById('promo-image-preview').src = "";
+        promoImageFile = null;
+        
+        btn.style.display = "none";
+
+        showToast("✅ EXITO", "Promoción desactivada.");
+
+    } catch (error) {
+        console.error("Error eliminando promoción:", error);
+        alert("Error: " + error.message);
+        document.getElementById('btn-delete-promo').disabled = false;
+        document.getElementById('btn-delete-promo').innerText = "Desactivar / Eliminar";
+    }
+}
+
+function loadPromoData() {
+    db.doc('settings/promotion').get().then(doc => {
+        if (doc.exists) {
+            const data = doc.data();
+            if (data.active) {
+                // Set image preview
+                const preview = document.getElementById('promo-image-preview');
+                const container = document.getElementById('promo-preview-container');
+                if (data.imageUrl) {
+                    preview.src = data.imageUrl;
+                    container.style.display = 'block';
+                }
+
+                // Set expiration date (format: YYYY-MM-DDTHH:MM)
+                if (data.expiresAt) {
+                    const date = data.expiresAt.toDate();
+                    const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+                    const localISOTime = (new Date(date - tzOffset)).toISOString().slice(0, 16);
+                    document.getElementById('promo-expiration').value = localISOTime;
+                }
+
+                if (data.link) {
+                    document.getElementById('promo-link').value = data.link;
+                }
+
+                document.getElementById('btn-delete-promo').style.display = "inline-flex";
+            }
+        }
+    }).catch(err => {
+        console.error("Error loading promo data:", err);
+    });
 }

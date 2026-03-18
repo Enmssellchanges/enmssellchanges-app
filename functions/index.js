@@ -238,8 +238,8 @@ exports.onTransferStatusChanged = onDocumentUpdated(
             notification: { title, body },
             webpush: {
                 notification: {
-                    icon: '/logo-enmssell.png',
-                    badge: '/logo-enmssell.png',
+                    icon: '/logo-enmssell.webp',
+                    badge: '/logo-enmssell.webp',
                     vibrate: [200, 100, 200],
                     tag: `transfer-${event.params.transferId}`,
                 },
@@ -300,8 +300,8 @@ exports.sendPromoNotification = onCall(
             notification: { title, body },
             webpush: {
                 notification: {
-                    icon: '/logo-enmssell.png',
-                    badge: '/logo-enmssell.png',
+                    icon: '/logo-enmssell.webp',
+                    badge: '/logo-enmssell.webp',
                     vibrate: [200, 100, 200],
                 },
             },
@@ -320,5 +320,63 @@ exports.sendPromoNotification = onCall(
 
         console.log(`[promo] ✅ Sent to ${successCount}/${tokens.length} users`);
         return { sent: successCount, total: tokens.length };
+    }
+);
+
+exports.sendTelegramAdmin = onCall(
+    { region: 'us-central1' },
+    async (request) => {
+        // Obtenemos los datos de la transacción (tx)
+        const tx = request.data;
+        if (!tx) {
+            throw new HttpsError('invalid-argument', 'Faltan datos de la transacción.');
+        }
+
+        // Credenciales movidas desde el frontend por seguridad
+        const TELEGRAM_TOKEN = '8640685427:AAG3o95Bh8cY4AAmAF-DHRj4iQ33WxL-EX8';
+        const TELEGRAM_CHAT_ID = '8424194336';
+
+        // Security: Escape HTML to avoid Telegram 400 Bad Request when users input <, >, & etc.
+        const escapeHtml = (unsafe) => {
+            if (typeof unsafe !== 'string') return unsafe;
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        };
+
+        const message = `<b>🚀 NUEVO ENVÍO RECIBIDO</b>\n\n` +
+            `👤 <b>Remitente:</b> ${escapeHtml(tx.sender)}\n` +
+            `👤 <b>Destinatario:</b> ${escapeHtml(tx.name)}\n` +
+            `💰 <b>Monto:</b> ${escapeHtml(tx.amount)}\n` +
+            `📝 <b>Nota:</b> ${escapeHtml(tx.note) || 'N/A'}\n` +
+            `🆔 <b>TX ID:</b> <code>${escapeHtml(tx.id) || 'N/A'}</code>\n\n` +
+            `👉 Revisa el panel de admin para procesar.`;
+
+        const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+        const params = {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'HTML'
+        };
+
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                console.error("Error detallado de Telegram:", errorData);
+                throw new HttpsError('internal', 'Error desde la API de Telegram');
+            }
+            return { success: true };
+        } catch (err) {
+            console.error("Fallo de conexión enviando Telegram:", err);
+            throw new HttpsError('internal', 'Fallo de conexión enviando a Telegram');
+        }
     }
 );

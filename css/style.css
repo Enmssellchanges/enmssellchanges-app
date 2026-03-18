@@ -16,7 +16,6 @@
     --gold-gradient: linear-gradient(135deg, #f1d592 0%, #d4af37 50%, #b8860b 100%);
 }
 
-/* Brand Identity & Logo Settings */
 .logo-container {
     display: flex;
     align-items: center;
@@ -106,16 +105,15 @@
     }
 }
 
-
 html {
     zoom: 0.5;
-    /* Reducción de escala para que se vean más elementos en pantalla en PC */
+    
 }
 
 @media (max-width: 1024px) {
     html {
         zoom: 1;
-        /* Retornar a escala 100% en tablets/móviles para preservar legibilidad táctil */
+        
     }
 }
 
@@ -133,7 +131,6 @@ body {
     min-height: 100vh;
 }
 
-/* Mesh Gradient Background */
 .background-canvas {
     position: fixed;
     top: 0;
@@ -148,7 +145,6 @@ body {
     background-color: var(--bg-dark);
 }
 
-/* Glassmorphism utility */
 .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -158,7 +154,6 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Navigation */
 nav {
     display: flex;
     justify-content: space-between;
@@ -217,14 +212,12 @@ nav {
     box-shadow: 0 0 15px rgba(13, 127, 242, 0.4);
 }
 
-/* Main Container */
 main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem 5%;
 }
 
-/* Layout for Send View */
 .send-container {
     display: flex;
     gap: 2rem;
@@ -572,10 +565,9 @@ main {
     filter: grayscale(0.5);
 }
 
-/* History Section */
 .history-section {
     display: none;
-    /* Initially hidden */
+    
 }
 
 .history-header {
@@ -658,7 +650,6 @@ main {
     box-shadow: 0 0 10px rgba(13, 127, 242, 0.2);
 }
 
-/* Mobile responsive */
 @media (max-width: 768px) {
     .hero h1 {
         font-size: 2.2rem;
@@ -686,7 +677,6 @@ main {
     }
 }
 
-/* Modals */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -745,7 +735,6 @@ main {
     box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
 }
 
-/* Premium Login Styles */
 .login-tagline-gold {
     background: var(--gold-gradient);
     -webkit-background-clip: text;
@@ -813,7 +802,6 @@ main {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Spreadsheet Styles */
 .spreadsheet-ui {
     border-collapse: collapse;
     width: 100%;
@@ -913,7 +901,6 @@ main {
     animation: pulse-gold 2s infinite;
 }
 
-/* Animations */
 @keyframes spin {
     from {
         transform: rotate(360deg);
@@ -929,7 +916,6 @@ main {
     display: inline-block;
 }
 
-/* Mobile Bottom Nav Styles */
 .mobile-nav {
     display: none;
     position: fixed;
@@ -989,7 +975,6 @@ main {
     }
 }
 
-/* WhatsApp Floating Button */
 .whatsapp-float {
     position: fixed;
     width: 60px;
@@ -1034,7 +1019,7 @@ main {
 @media (max-width: 768px) {
     .whatsapp-float {
         bottom: 80px;
-        /* Above mobile nav */
+        
         right: 20px;
         width: 50px;
         height: 50px;
@@ -1044,7 +1029,7 @@ main {
 
 .main-footer {
     padding: 3rem 5% 7.5rem;
-    /* Extra bottom padding for mobile nav */
+    
     background: rgba(0, 0, 0, 0.3);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     margin-top: 4rem;
@@ -1140,10 +1125,6 @@ main {
     color: var(--accent-teal);
 }
 
-
-
-
-
 .copyright {
     font-size: 0.7rem;
     color: rgba(255, 255, 255, 0.3);
@@ -1156,11 +1137,6 @@ main {
     }
 }
 
-/* ==========================================================================
-   Utility Classes & Component Extraction
-   ========================================================================== */
-
-/* Flexbox Layouts */
 .flex-center {
     display: flex;
     align-items: center;
@@ -1207,7 +1183,6 @@ main {
     width: 280px;
 }
 
-/* Spacing & Gaps */
 .gap-xs {
     gap: 0.3rem;
 }
@@ -1284,7 +1259,6 @@ main {
     padding: 2rem;
 }
 
-/* Text Alignment & Weights */
 .text-center {
     text-align: center;
 }
@@ -1309,7 +1283,6 @@ main {
     text-transform: uppercase;
 }
 
-/* Components */
 .panel-glass {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--glass-border);
@@ -1444,7 +1417,6 @@ main {
     color: var(--success);
 }
 
-/* Buttons Customization (from inline) */
 .btn-admin-refresh {
     width: auto;
     background: linear-gradient(45deg, var(--gold), #b8860b);
@@ -1498,7 +1470,6 @@ main {
     font-size: 2rem;
 }
 
-/* Admin Panel Classes */
 .admin-safe-mode-badge {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--glass-border);
@@ -1583,7 +1554,6 @@ main {
         display: none;
     }
 
-    /* Responsive UI Adjustments for Mobile */
     .hero h1 {
         font-size: 2.2rem;
     }
@@ -1613,7 +1583,6 @@ main {
         gap: 0.5rem;
     }
 
-    /* General window padding adjustments for a cleaner look */
     main {
         padding: 1rem 4% 5rem;
     }
@@ -1635,9 +1604,6 @@ main {
     }
 }
 
-/* --- THEME SYSTEM --- */
-
-/* Theme 1: Modern Pro (Blue SaaS Style - Vercel/Stripe inspired) */
 body.theme-modern {
     --gold: #0070f3;
     --gold-light: #3291ff;
@@ -1662,10 +1628,9 @@ body.theme-modern .btn-primary {
     background: linear-gradient(135deg, var(--gold), var(--gold-dark));
     box-shadow: 0 4px 15px rgba(0, 112, 243, 0.3);
     color: white;
-    /* Important for contrast */
+    
 }
 
-/* Theme 2: Light Clean (Apple/Fintech Style) */
 body.theme-light {
     --bg-dark: #f5f5f7;
     --surface-dark: #ffffff;
@@ -1687,7 +1652,7 @@ body.theme-light .glass {
 
 body.theme-light .background-canvas {
     opacity: 0.1;
-    /* Fade out the mesh for a cleaner look */
+    
     filter: invert(1);
 }
 
@@ -1713,7 +1678,6 @@ body.theme-light .btn-primary {
     color: white;
 }
 
-/* Spinning animation for loading/refresh icons */
 @keyframes spin-rotate {
     from { transform: rotate(0deg); }
     to   { transform: rotate(360deg); }

@@ -116,7 +116,6 @@ async function confirmDeleteBeneficiary() {
   _showFillToast('🗑️ ' + name + ' eliminado');
 }
 
-
 // Helper: safely set a value on an element by ID, with logging
 function _fillField(id, value) {
   const el = document.getElementById(id);
@@ -129,7 +128,7 @@ function _fillField(id, value) {
     return;
   }
   el.value = value;
-  console.log('[Beneficiary] ✏️', id, '=', value, '→ verificado:', el.value);
+
 }
 
 // Helper: show a brief visual toast for debug/confirmation
@@ -152,8 +151,6 @@ function loadSavedBeneficiary() {
   if (index === '') return;
   const b = savedBeneficiariesList[index];
   if (!b) return;
-
-  console.log('[Beneficiary] Cargando:', JSON.stringify(b));
 
   // Set sender name (only if user hasn't manually typed something)
   if (b.senderName) {
@@ -180,7 +177,6 @@ function loadSavedBeneficiary() {
 
   // Wait for calculate() to show the correct country form fields, then fill them in
   setTimeout(() => {
-    console.log('[Beneficiary] Rellenando campos para:', destCode, b);
 
     if (destCode === 'VES') {
       // Support BOTH old format (fields at top level) AND new format (nested in vesData)
@@ -191,8 +187,6 @@ function loadSavedBeneficiary() {
       const vesBank = vd.bank || b.bank || '';
       const vesAcct = vd.account || b.account || b.phone || '';
       const vesIdPfx = vd.idPrefix || b.idPrefix || '';
-
-      console.log('[Beneficiary] VES data →', { vesType, vesId, vesBank, vesAcct });
 
       // selectVesType sets button styles AND clears ves-account — call it first
       if (typeof selectVesType === 'function') selectVesType(vesType);
@@ -255,7 +249,6 @@ function loadSavedBeneficiary() {
       _fillField('recipient-name', b.recipientName || '');
     }
 
-    console.log('[Beneficiary] ✅ Campos rellenados');
     _showFillToast(b.recipientName || 'destinatario');
   }, 300);
 }

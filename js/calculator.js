@@ -1,6 +1,5 @@
 // Default to VES
 
-console.log("CALCULATOR JS V8.0 LOADED");
 // --- LÓGICA DE CÁLCULO Y RENDERIZADO ---
 // Prevents the UI from recalculating on every single keystroke.
 let calcTimeout = null;
@@ -348,7 +347,6 @@ function calculateMonitorSend() {
     calculate(true);
   }
 }
-
 
 function renderHomeRates() {
   const grid = document.getElementById('home-rates-grid');

@@ -1,3 +1,7 @@
+/**
+ * Filters the user's transaction history based on the search query and date range.
+ * Triggers a re-render of the transactions list with the filtered results.
+ */
 function filterTransactions() {
   const list = document.getElementById('transaction-list');
   if (!list) return;
@@ -17,12 +21,19 @@ function filterTransactions() {
   renderTransactionsList(filtered);
 }
 
+/**
+ * Groups an array of transactions by their date.
+ * Replaces today's and yesterday's dates with 'Hoy' and 'Ayer' respectively.
+ *
+ * @param {Array} transactions - The list of transaction objects to group.
+ * @returns {Object} An object where keys are date strings and values are arrays of transactions.
+ */
 function groupTransactionsByDate(transactions) {
   const groups = {};
   const today = new Date().toLocaleDateString('es-ES');
   const yesterday = new Date(Date.now() - 86400000).toLocaleDateString('es-ES');
   transactions.forEach(tx => {
-    const dateStr = new Date(tx.timestamp || tx.date).toLocaleDateString('es-ES');
+    const dateStr = new Date(tx.timestamp?.toMillis ? tx.timestamp.toMillis() : (tx.timestamp || tx.date)).toLocaleDateString('es-ES');
     let label = dateStr;
     if (dateStr === today) label = 'Hoy'; else if (dateStr === yesterday) label = 'Ayer';
     if (!groups[label]) groups[label] = [];
@@ -31,6 +42,11 @@ function groupTransactionsByDate(transactions) {
   return groups;
 }
 
+/**
+ * Renders the list of transactions grouped by date in the UI.
+ *
+ * @param {Array} transactions - The list of transaction objects to render.
+ */
 function renderTransactionsList(transactions) {
   const list = document.getElementById('transaction-list');
   if (!list) return;
@@ -60,9 +76,9 @@ function renderTransactionsList(transactions) {
                         <div class="avatar" style="${tx.status === 'rejected' ? 'background: var(--error);' : ''}">${tx.initials || '??'}</div>
                         <div>
                             <strong style="font-size: 1rem; color: white;">${tx.name}</strong><br>
-                            <small style="color: var(--text-muted);">${new Date(tx.timestamp || tx.date).toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
+                            <small style="color: var(--text-muted);">${new Date(tx.timestamp?.toMillis ? tx.timestamp.toMillis() : (tx.timestamp || tx.date)).toLocaleString('es-ES', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     })}</small>
                             ${destSummary ? `<br><small style="color:var(--accent-teal); font-weight: 500;">${destSummary}</small>` : ''}
                             ${tx.status === 'rejected' ? `<br><small style="color: var(--error); opacity: 0.9;">Motivo: ${tx.reason || 'S/M'}</small>` : ''}
@@ -108,6 +124,12 @@ function renderTransactionsList(transactions) {
 
 // Quick Logic Home
 
+/**
+ * Handles the selection of an image file for payment proof, compresses it,
+ * and sets it up for preview and upload.
+ *
+ * @param {Event} event - The file input change event.
+ */
 async function handleFileSelect(event) {
   const file = event.target.files[0];
   if (file) {
@@ -129,6 +151,11 @@ async function handleFileSelect(event) {
 
 // --- Fin Beneficiarios Frecuentes ---
 
+/**
+ * Collects data from the transfer form, validates it, creates a new transfer record,
+ * registers it in Firestore, uploads the payment proof to Storage,
+ * and triggers relevant notifications.
+ */
 async function simulateTransfer() {
   if (!user) {
     openLogin();
@@ -382,6 +409,10 @@ async function simulateTransfer() {
   }
 }
 
+/**
+ * Subscribes to the user's transaction history in Firestore.
+ * Triggers a render of the transactions list upon updates.
+ */
 function loadTransactions() {
   if (!user || typeof db === 'undefined') return;
   db.collection('transfers').where('userId', '==', user.uid).onSnapshot(snapshot => {
@@ -403,6 +434,12 @@ function loadTransactions() {
 // Spreadsheet Logic
 // Push Notifications Logic
 
+/**
+ * Toggles the visibility of a receipt preview container.
+ * Smoothly scrolls into view if being opened.
+ *
+ * @param {string} id - The suffix of the element ID to toggle.
+ */
 function toggleReceiptPreview(id) {
   const preview = document.getElementById(`preview-${id}`);
   if (!preview) return;
@@ -418,8 +455,12 @@ function toggleReceiptPreview(id) {
 }
 
 // Helper to download images from DOM id
-
-// Helper to download images from DOM id
+/**
+ * Downloads an image from a given DOM element ID.
+ *
+ * @param {string} imgId - The ID of the image element.
+ * @param {string} filename - The target file name for the download.
+ */
 async function downloadProofById(imgId, filename) {
   const imgElement = document.getElementById(imgId);
   if (!imgElement || !imgElement.src) {
@@ -431,8 +472,12 @@ async function downloadProofById(imgId, filename) {
 }
 
 // Helper to download images (Base64 or URL)
-
-// Helper to download images (Base64 or URL)
+/**
+ * Downloads an image given its base64 data or URL.
+ *
+ * @param {string} proofData - The Base64 encoded string or the URL of the image.
+ * @param {string} filename - The target file name for the download.
+ */
 async function downloadProof(proofData, filename) {
   if (!proofData || proofData === 'undefined') {
     alert("Comprobante no disponible.");

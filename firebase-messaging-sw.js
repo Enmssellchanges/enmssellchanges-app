@@ -4,6 +4,8 @@ importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-comp
 firebase.initializeApp({
     projectId: "enmssellchanges-premium",
     appId: "1:591347469322:web:aadf4993968d3cbf57e3f3",
+    apiKey: "AIzaSyDjZnv2KSnmpiptFzkMceHz1r08-WeVBZs",
+    authDomain: "enmssellchanges-premium.firebaseapp.com",
     messagingSenderId: "591347469322"
 });
 
@@ -15,7 +17,7 @@ const ASSETS = [
     '/index.html',
     '/style.css',
     '/app.js',
-    '/logo-enmssell.png',
+    '/logo-enmssell.webp',
     '/manifest.json'
 ];
 
@@ -63,7 +65,7 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: '/logo-enmssell.png'
+        icon: '/logo-enmssell.webp'
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);

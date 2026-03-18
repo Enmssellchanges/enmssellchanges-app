@@ -1,48 +1,22 @@
-// --- CONFIGURACIÓN DE NOTIFICACIONES EXTERNAS ---
-// Reemplaza con tus datos de Telegram para recibir avisos con la web cerrada
-const TELEGRAM_CONFIG = {
-    token: '8640685427:AAG3o95Bh8cY4AAmAF-DHRj4iQ33WxL-EX8', // Ejemplo: '123456:ABC-DEF...'
-    chatId: '8424194336'      // Ejemplo: '987654321'
-};
-
+/**
+ * Envía una notificación de nueva transacción al administrador vía Telegram.
+ * Llama a la Cloud Function 'sendTelegramAdmin' para mantener las credenciales seguras.
+ * @param {Object} tx - Datos de la transacción (sender, name, amount, note, id).
+ */
 function sendTelegramAdmin(tx) {
-    if (!TELEGRAM_CONFIG.token) return;
-
-    // Use HTML instead of Markdown to avoid issues with special characters like "_" or "*"
-    const message = `<b>🚀 NUEVO ENVÍO RECIBIDO</b>\n\n` +
-        `👤 <b>Remitente:</b> ${tx.sender}\n` +
-        `👤 <b>Destinatario:</b> ${tx.name}\n` +
-        `💰 <b>Monto:</b> ${tx.amount}\n` +
-        `📝 <b>Nota:</b> ${tx.note || 'N/A'}\n` +
-        `🆔 <b>TX ID:</b> <code>${tx.id || 'N/A'}</code>\n\n` +
-        `👉 Revisa el panel de admin para procesar.`;
-
-    const url = `https://api.telegram.org/bot${TELEGRAM_CONFIG.token}/sendMessage`;
-
-    const params = {
-        chat_id: TELEGRAM_CONFIG.chatId,
-        text: message,
-        parse_mode: 'HTML'
-    };
-
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(params)
-    })
-        .then(res => {
-            if (!res.ok) {
-                return res.json().then(errorData => {
-                    console.error("Error detallado de Telegram:", errorData);
-                });
-            }
-
-        })
-        .catch(err => console.error("Fallo de conexión enviando Telegram:", err));
+    if (!firebase || !firebase.functions) {
+        console.warn('Firebase Functions no está disponible.');
+        return;
+    }
+    const sendTelegramFn = firebase.functions().httpsCallable('sendTelegramAdmin');
+    sendTelegramFn(tx)
+        .catch(err => console.error("Error llamando a sendTelegramAdmin:", err));
 }
 
+/**
+ * Sends an email notification to the administrator about a new transaction.
+ * @param {Object} transferData - The transaction details.
+ */
 function sendAdminEmail(transferData) {
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxPP-mK2tICYcq43pzKvJvAN4nrgUj7ahax5CSkB6evAPOjUJWBbh-TjSn4iOZHUPWc/exec";
 
@@ -65,6 +39,11 @@ function sendAdminEmail(transferData) {
         .catch(err => console.error('Error al enviar email admin:', err));
 }
 
+/**
+ * Sends an email notification to the user about their transaction status.
+ * @param {Object} tx - The transaction details.
+ * @param {string} status - The current status of the transaction (e.g., 'Procesando', 'completed', 'rejected').
+ */
 function sendUserNotification(tx, status) {
     const GAS_URL = "https://script.google.com/macros/s/AKfycbxPP-mK2tICYcq43pzKvJvAN4nrgUj7ahax5CSkB6evAPOjUJWBbh-TjSn4iOZHUPWc/exec";
 
@@ -100,6 +79,10 @@ function sendUserNotification(tx, status) {
         .catch(err => console.error('Error al enviar email a usuario:', err));
 }
 
+/**
+ * Plays the notification sound for new alerts.
+ * @param {boolean} silent - If true, it attempts a silent play to unlock audio context.
+ */
 function playNotificationSound(silent = false) {
     const sound = document.getElementById('notification-sound');
     if (!sound) return;
@@ -117,6 +100,10 @@ function playNotificationSound(silent = false) {
     sound.play().catch(e => console.warn("Interacción requerida para sonido:", e));
 }
 
+/**
+ * Fetches current P2P exchange rates from Binance for various currencies
+ * using a Google Apps Script proxy. Updates UI and spreadsheet data.
+ */
 async function fetchBinanceP2P() {
 
     const configs = [
@@ -244,6 +231,11 @@ async function fetchBinanceP2P() {
     // que corre cada 15 minutos en el servidor, sin depender de ningún usuario conectado.
 }
 
+/**
+ * Backwards compatible fetch for Monitor rate.
+ * @deprecated Use window.fetchMonitorRate instead.
+ * @returns {Promise<number|null>} The numeric rate or null if failed.
+ */
 async function fetchMonitorRate() {
     try {
         const response = await fetch('https://api.yadio.io/json/?t=' + Date.now(), { cache: 'no-store' });
@@ -262,21 +254,16 @@ async function fetchMonitorRate() {
     return null;
 }
 
-function renderBCV() {
-    const bcvDisplay = document.getElementById('bcv-rate-display');
-    if (bcvDisplay) {
-        bcvDisplay.innerText = `${AppConfig.bcvRate} Bs/USD`;
-    }
-}
-
-function renderMonitor() {
-    const monitorDisplay = document.getElementById('monitor-rate-display');
-    if (monitorDisplay) {
-        monitorDisplay.innerText = `${AppConfig.monitorRate} Bs/USD`;
-    }
-}
-
 // Helper to upload base64 to Firebase Storage with security metadata
+/**
+ * Uploads a base64 string image to Firebase Storage and returns the download URL.
+ * Includes necessary metadata for backend rules evaluation.
+ *
+ * @param {string} base64Data - The image data in base64 format.
+ * @param {string} path - The storage path where the file will be saved.
+ * @param {Object} customMetadata - Additional metadata to append to the file.
+ * @returns {Promise<string>} The public download URL.
+ */
 async function uploadBase64ToStorage(base64Data, path, customMetadata = {}) {
     if (!base64Data || !base64Data.startsWith('data:')) return base64Data;
 
@@ -331,7 +318,7 @@ window.FirebaseAPI = {
                     const vesIdx = data.findIndex(c => c.code === 'VES');
                     const copIdx = data.findIndex(c => c.code === 'COP');
                     if (vesIdx !== -1 && vesIdx !== 1) {
-                        console.log("Forcing Venezuela to index 1...");
+
                         const vesItem = data.splice(vesIdx, 1)[0];
                         data.splice(1, 0, vesItem);
                     }
@@ -439,7 +426,7 @@ window.FirebaseAPI = {
             if (doc.exists) {
                 const currentVersion = doc.data().v;
                 if (!initialVersionLoad && window.AppConfig.appVersion && window.AppConfig.appVersion !== currentVersion) {
-                    console.log("Nueva versión detectada. Recargando para aplicar cambios...");
+
                     window.location.reload(true);
                 }
                 window.AppConfig.appVersion = currentVersion;
@@ -483,6 +470,12 @@ window.FirebaseAPI = {
 };
 
 // Global function to fetch Monitor Rate (Yadio) with proxy fallback
+/**
+ * Fetches the USD/VES exchange rate from the Yadio API.
+ * Uses a proxy as a fallback if the direct request fails.
+ *
+ * @returns {Promise<number|null>} The fetched rate or null on failure.
+ */
 window.fetchMonitorRate = async function () {
     const ts = Date.now();
     const urls = [
@@ -492,7 +485,7 @@ window.fetchMonitorRate = async function () {
 
     for (const url of urls) {
         try {
-            console.log(`Intentando extraer precio de Monitor desde: ${url}`);
+
             const response = await fetch(url, { cache: 'no-store' });
             if (!response.ok) continue;
             const data = await response.json();
@@ -501,7 +494,6 @@ window.fetchMonitorRate = async function () {
             if (data && data.usd) {
                 // Use exact Yadio format
                 const price = parseFloat(data.usd);
-                console.log("Precio extraído con éxito:", price);
 
                 // Do not update window.AppConfig locally here, 
                 // let admin.js compare it and save it to Firestore to propagate properly.

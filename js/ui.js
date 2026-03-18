@@ -297,13 +297,13 @@ function getBankLogo(bankName) {
   // Special case for Santander Chile as requested by user
   if (name.includes('santander')) {
     // High quality logo with "Santander" text as used in Chile
-    return 'logo-santander.png';
+    return 'assets/img/logo-santander.png';
   }
   if (name.includes('banco estado') || name.includes('estado')) {
-    return 'logo-estado.png';
+    return 'assets/img/logo-estado.png';
   }
   if (name.includes('bcv') || name.includes('banco central') || name.includes('central de venezuela')) {
-    return 'logo-bcv.png?v=2';
+    return 'assets/img/logo-bcv.webp?v=2';
   }
   const mapping = {
     'pichincha': 'pichincha.com',
@@ -347,7 +347,7 @@ async function requestNotificationPermission() {
         }, {
           merge: true
         });
-        console.log('[FCM] Token saved:', token.substring(0, 20) + '...');
+
       }
     }
   } catch (err) {
@@ -358,7 +358,7 @@ async function requestNotificationPermission() {
 // Handle foreground notifications (when app is open)
 if (typeof messaging !== 'undefined' && messaging) {
   messaging.onMessage((payload) => {
-    console.log('[FCM] Foreground message:', payload);
+
     const { title, body } = payload.notification || {};
     if (title && typeof showToast === 'function') {
       showToast(title, body || '');
@@ -518,3 +518,30 @@ function applyTheme(themeName) {
 // Initialize theme on load
 document.addEventListener('DOMContentLoaded', initTheme);
 
+// --- MODAL PROMOCIONAL ---
+function openPromoModal(imageUrl, link) {
+    const modal = document.getElementById('promo-modal');
+    const image = document.getElementById('promo-modal-image');
+    const linkEl = document.getElementById('promo-modal-link');
+
+    if (!modal || !image) return;
+
+    image.src = imageUrl;
+
+    if (link) {
+        linkEl.href = link;
+        linkEl.style.pointerEvents = "auto";
+    } else {
+        linkEl.removeAttribute("href");
+        linkEl.style.pointerEvents = "none";
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closePromoModal() {
+    const modal = document.getElementById('promo-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}

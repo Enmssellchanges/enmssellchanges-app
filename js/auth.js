@@ -161,11 +161,8 @@ function handlePhoneVerifyCode() {
         });
 }
 
-
-
 var isLoggingIn = false;
 function handleGoogleLogin() {
-    console.log("handleGoogleLogin ejecutando. Estado de isLoggingIn:", isLoggingIn);
 
     // Forzar el estado a false para asegurar que no esté bloqueado permanentemente
     if (isLoggingIn) {
@@ -185,9 +182,9 @@ function handleGoogleLogin() {
 
     const provider = new firebase.auth.GoogleAuthProvider();
     isLoggingIn = true;
-    console.log("Iniciando signInWithPopup...");
+
     firebase.auth().signInWithPopup(provider).then(result => {
-        console.log("Login exitoso:", result.user.email);
+
         closeLogin();
     }).catch(error => {
         if (error.code !== 'auth/cancelled-popup-request' && error.code !== 'auth/popup-closed-by-user') {
@@ -223,7 +220,6 @@ function updateAuthUI() {
         if (mobAdminNav) mobAdminNav.style.display = 'flex';
     }
 }
-
 
 function resetAuthUI() {
     const authContainer = document.getElementById('auth-container');
@@ -298,7 +294,6 @@ async function loadUserProfile() {
             initials.innerText = (user.name || 'U').substring(0, 2).toUpperCase();
         }
 
-
         if (typeof loadUserBeneficiaries === 'function') {
             loadUserBeneficiaries();
         }
@@ -334,7 +329,7 @@ async function saveUserProfile() {
 function handleLogout() {
     if (auth) {
         auth.signOut().then(() => {
-            console.log("Sesión cerrada");
+
             const modal = document.getElementById('logout-modal');
             if (modal) {
                 modal.style.display = 'flex';

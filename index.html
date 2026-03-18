@@ -7,21 +7,20 @@
     <title>Enmssellchanges | Envío de Dinero Premium</title>
     <meta name="description"
         content="Enmssellchanges - La plataforma premium para tus cambios y envíos de dinero. Rápido, seguro y con la mejor tasa del mercado.">
-    <link rel="icon" type="image/png" href="logo-enmssell.png">
+    <link rel="icon" type="image/png" href="assets/img/logo-enmssell.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=101">
+    <link rel="stylesheet" href="css/style.css?v=101">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <!-- PWA & Mobile Meta Tags -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#cca353">
-    <link rel="apple-touch-icon" href="logo-enmssell.png">
+    <link rel="apple-touch-icon" href="assets/img/logo-enmssell.webp">
 </head>
 
 <body>
@@ -32,7 +31,7 @@
 
     <nav>
         <div class="logo-container" onclick="showView('home')">
-            <img src="logo-enmssell.png" class="logo" alt="Enmssell Logo">
+            <img src="assets/img/logo-enmssell.webp" class="logo" alt="Enmssell Logo">
             <div class="logo-text">Enmsell Global</div>
             <div id="connection-status" class="flex-center gap-xs"
                 style="margin-left: 10px; font-size: 10px; color: var(--text-muted); background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
@@ -61,10 +60,10 @@
     </nav>
 
     <main>
-        <!-- Home / Hero View -->
+        
         <section id="view-home" class="hero">
             <div class="logo-hero-container" style="margin-bottom: 0.8rem;">
-                <img src="logo-enmssell.png" alt="Enmsell Logo Hero" class="logo-hero-img">
+                <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo Hero" class="logo-hero-img">
             </div>
 
             <div class="flex-center flex-wrap gap-2xl" style="align-items: flex-start; width: 100%;">
@@ -89,7 +88,7 @@
                             </div>
                         </div>
                         <div id="home-rates-grid" class="form-grid">
-                            <!-- Rates will be injected here -->
+                            
                         </div>
                     </div>
                 </div>
@@ -125,7 +124,7 @@
                                 <span id="quick-dest-code">VES</span>
                             </div>
                         </div>
-                        <!-- Quick BCV Info (Moved here) -->
+                        
                         <div id="quick-ves-bcv-info"
                             style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
                             <div>
@@ -143,7 +142,7 @@
                             </div>
                             <div id="bcv-container" class="glass flex-center gap-md"
                                 style="padding: 0.5rem 1rem; border-color: rgba(212, 175, 55, 0.3); background: rgba(0,0,0,0.3); border-radius: 12px;">
-                                <img src="logo-bcv.png?v=2" alt="BCV Logo" style="height: 25px; object-fit: contain;">
+                                <img src="assets/img/logo-bcv.webp?v=2" alt="BCV Logo" style="height: 25px; object-fit: contain;">
                                 <div style="text-align: left;">
                                     <div class="text-gold font-bold uppercase"
                                         style="font-size: 0.6rem; letter-spacing: 1px;">
@@ -153,7 +152,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Quick Monitor Info -->
+                        
                         <div id="quick-ves-monitor-info"
                             style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
                             <div>
@@ -172,7 +171,7 @@
                             </div>
                             <div id="monitor-container" class="glass flex-center gap-md"
                                 style="padding: 0.5rem 1rem; border-color: rgba(94, 234, 212, 0.3); background: rgba(0,0,0,0.3); border-radius: 12px;">
-                                <img src="logo-monitor.png?v=2" alt="Monitor Logo"
+                                <img src="assets/img/logo-monitor.webp?v=2" alt="Monitor Logo"
                                     style="height: 25px; object-fit: contain; border-radius: 50%;">
                                 <div style="text-align: left;">
                                     <div class="text-gold font-bold uppercase"
@@ -191,10 +190,9 @@
             </div>
         </section>
 
-        <!-- Send Payment View -->
         <section id="view-send" class="send-section" style="display:none;">
             <div class="send-container">
-                <!-- Accounts on the left -->
+                
                 <div id="user-accounts-section" class="text-left">
                     <details class="panel-dark mb-lg">
                         <summary class="flex-between p-sm cursor-pointer font-bold text-teal"
@@ -203,12 +201,11 @@
                             <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
                         </summary>
                         <div id="user-accounts-list" class="flex-col gap-md mt-lg">
-                            <!-- Client-visible accounts here -->
+                            
                         </div>
                     </details>
                 </div>
 
-                <!-- Form on the right -->
                 <div class="send-widget glass">
                     <h2 style="margin-bottom: 1.5rem;">Nuevo Envío</h2>
                     <div class="exchange-rate" id="current-rate">1 CLP = 0.05 VES</div>
@@ -239,7 +236,7 @@
                                 <span id="dest-code">Venezuela</span>
                             </div>
                         </div>
-                        <!-- BCV Equivalency Info (Moved here for better visibility) -->
+                        
                         <div id="ves-bcv-info"
                             style="display: none; align-items: center; justify-content: space-between; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
                             <div>
@@ -263,7 +260,6 @@
                             </div>
                         </div>
 
-                        <!-- Monitor Equivalency Info -->
                         <div id="ves-monitor-info"
                             style="display: none; align-items: center; justify-content: space-between; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
                             <div>
@@ -317,13 +313,11 @@
                             </details>
                         </div>
 
-                        <!-- General Recipient Name (Hidden for VES) -->
                         <div id="general-recipient-container" class="col-span-2">
                             <span>Nombre del Destinatario (Recibe)</span>
                             <input type="text" id="recipient-name" class="premium-input" placeholder="Ej: Juan Perez">
                         </div>
 
-                        <!-- Venezuela Specific Fields -->
                         <div id="ves-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Tipo de Envío a Venezuela</span>
@@ -348,7 +342,7 @@
                                 <input type="text" id="ves-name" class="premium-input" placeholder="Ej: Juan Perez"
                                     oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
                             </div>
-                            <div>
+                            <div class="col-span-2">
                                 <span>Cédula de Identidad</span>
                                 <div style="display: flex; gap: 0.4rem;">
                                     <select id="ves-id-prefix" class="premium-select"
@@ -362,7 +356,7 @@
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
-                            <div>
+                            <div class="col-span-2">
                                 <span>Banco Destino</span>
                                 <select id="ves-bank" class="premium-select" onchange="updateTransferLogo('ves')">
                                     <option value="">Seleccione un Banco</option>
@@ -400,7 +394,6 @@
 
                         </div>
 
-                        <!-- Colombia Specific Fields -->
                         <div id="cop-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Nombre del Beneficiario</span>
@@ -439,7 +432,6 @@
                             </div>
                         </div>
 
-                        <!-- Peru Specific Fields -->
                         <div id="pen-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Nombre del Beneficiario</span>
@@ -473,7 +465,6 @@
                             </div>
                         </div>
 
-                        <!-- USA Specific Fields -->
                         <div id="usa-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Nombre del Beneficiario</span>
@@ -494,7 +485,6 @@
                             </div>
                         </div>
 
-                        <!-- Ecuador Specific Fields -->
                         <div id="ecs-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Nombre del Beneficiario</span>
@@ -524,7 +514,7 @@
 
                             </div>
                         </div>
-                        <!-- Chile Specific Fields -->
+                        
                         <div id="clp-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Nombre del Beneficiario</span>
@@ -609,7 +599,6 @@
             </div>
         </section>
 
-        <!-- History View -->
         <section id="view-history" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Historial de Transacciones</h2>
@@ -629,22 +618,20 @@
             <p class="text-muted mb-xl">Gestiona y revisa todos tus movimientos
                 financieros</p>
             <div class="transaction-list" id="transaction-list">
-                <!-- Transactions will be loaded here -->
+                
             </div>
         </section>
 
-        <!-- Tracking View -->
         <section id="view-tracking" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Rastreo de Envío</h2>
                 <div class="status-badge status-pending" id="tracking-status-badge">EN TIEMPO REAL</div>
             </div>
             <div id="tracking-content">
-                <!-- Tracking details -->
+                
             </div>
         </section>
 
-        <!-- Profile View -->
         <section id="view-profile" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Mi Perfil</h2>
@@ -684,7 +671,7 @@
                 </div>
             </div>
         </section>
-        <!-- Admin View -->
+        
         <section id="view-admin" class="history-section" style="display:none;">
             <div class="history-header flex-wrap gap-lg">
                 <h2>Panel de Administración (Autorizaciones)</h2>
@@ -698,7 +685,7 @@
                 </div>
             </div>
             <div class="transaction-list" id="admin-pending-list">
-                <!-- Pending authorization will be here -->
+                
             </div>
 
             <div class="glass my-xl p-1px">
@@ -741,12 +728,11 @@
                         </div>
                     </div>
                     <div id="admin-history-list" class="transaction-list admin-history-list">
-                        <!-- Processed history will be loaded here -->
+                        
                     </div>
                 </div>
             </div>
 
-            <!-- Admin Account Management -->
             <details
                 style="margin-bottom: 2rem; border: 1px solid var(--glass-border); border-radius: 12px; padding: 0.5rem; background: rgba(0,0,0,0.2);">
                 <summary
@@ -807,7 +793,7 @@
                         </div>
                     </div>
                     <div id="admin-accounts-list" class="transaction-list">
-                        <!-- Managed bank accounts -->
+                        
                     </div>
                 </div>
             </details>
@@ -827,7 +813,7 @@
                         </button>
                     </div>
                     <div id="admin-rates-editor" class="flex-col gap-md">
-                        <!-- Rate editors injected here -->
+                        
                     </div>
                     <button class="btn-primary mt-lg" onclick="saveNewRates()">Guardar Tasas Actualizadas</button>
                     <div
@@ -871,6 +857,41 @@
                             style="display: none; padding: 0.5rem; border-radius: 8px; font-size: 0.85rem; text-align: center;">
                         </div>
                     </div>
+            </details>
+
+            <details class="panel-dark mb-xl">
+                <summary class="flex-between font-bold text-gold p-sm" style="font-size: 1.1rem; cursor: pointer;">
+                    Promoción (Pantalla Inicial)
+                    <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                </summary>
+                <div class="glass p-lg mt-md">
+                    <h4 style="margin: 0 0 1rem; font-size: 1rem; color: var(--gold);">Configurar Modal Promocional</h4>
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div>
+                            <span class="text-teal" style="font-size: 0.85rem;">Imagen Promocional</span>
+                            <input type="file" id="promo-image-upload" accept="image/*" class="search-bar w-full mt-xs" style="padding: 0.8rem;" onchange="handlePromoImageSelect(event)">
+                            <div id="promo-preview-container" class="mt-md" style="display:none; text-align: center;">
+                                <img id="promo-image-preview" src="" style="max-height: 200px; object-fit: contain; border-radius: 12px; border: 1px solid var(--glass-border);">
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-teal" style="font-size: 0.85rem;">Fecha y Hora de Expiración</span>
+                            <input type="datetime-local" id="promo-expiration" class="search-bar w-full mt-xs">
+                        </div>
+                        <div>
+                            <span class="text-teal" style="font-size: 0.85rem;">Enlace (Opcional)</span>
+                            <input type="url" id="promo-link" class="search-bar w-full mt-xs" placeholder="https://ejemplo.com">
+                        </div>
+                        <div class="flex-align-center gap-md" style="margin-top: 0.5rem;">
+                            <button id="btn-save-promo" class="btn-primary flex-1" onclick="savePromoData()">
+                                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">save</span>
+                                Guardar Promoción
+                            </button>
+                            <button id="btn-delete-promo" class="btn-signin btn-error" onclick="deleteCurrentPromo()" style="display: none;">
+                                Desactivar / Eliminar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </details>
 
@@ -882,7 +903,7 @@
                 </button>
             </div>
             <div id="binance-monitors-container" class="grid-monitors mb-xl">
-                <!-- Monitor CLP -->
+                
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/cl.png" style="height: 16px;">
@@ -898,7 +919,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor COP -->
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/co.png" style="height: 16px;">
@@ -914,7 +934,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor PEN -->
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/pe.png" style="height: 16px;">
@@ -930,7 +949,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor VES -->
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/ve.png" style="height: 16px;">
@@ -946,7 +964,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor USD (Zelle) -->
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/us.png" style="height: 16px;">
@@ -962,7 +979,6 @@
                     </div>
                 </div>
 
-                <!-- Monitor USD (ECU) -->
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
                         <img src="https://flagcdn.com/w20/ec.png" style="height: 16px;">
@@ -979,7 +995,6 @@
                 </div>
             </div>
 
-            <!-- HTML Calculator block removed -->
         </section>
 
         <footer class="main-footer">
@@ -1035,7 +1050,17 @@
         </footer>
     </main>
 
-    <!-- Reject Modal -->
+    <div id="promo-modal" class="modal-overlay" style="display:none; z-index: 10000; background: rgba(0,0,0,0.85);">
+        <div style="position: relative; max-width: 90vw; max-height: 90vh; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <button onclick="closePromoModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">
+                <span class="material-icons">close</span>
+            </button>
+            <a id="promo-modal-link" href="#" target="_blank" style="display: block; pointer-events: none;">
+                <img id="promo-modal-image" src="" alt="Promoción Especial" style="display: block; max-width: 100%; max-height: 90vh; object-fit: contain; width: auto; height: auto;">
+            </a>
+        </div>
+    </div>
+
     <div id="reject-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass">
             <h2 class="text-error">Rechazar Transacción</h2>
@@ -1065,7 +1090,6 @@
         </div>
     </div>
 
-    <!-- Confirm Transaction Modal (For Admin to upload proof) -->
     <div id="confirm-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass">
             <h2>Autorizar Transacción</h2>
@@ -1090,10 +1114,9 @@
         </div>
     </div>
 
-    <!-- Login Modal -->
     <div id="login-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass text-center" style="max-height: 90vh; overflow-y: auto;">
-            <img src="logo-enmssell.png" alt="Enmsell Logo" class="logo-hero-img mb-md"
+            <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo" class="logo-hero-img mb-md"
                 style="width: 100px; height: 100px;">
             <h2 class="text-gradient-gold font-black">Bienvenido a Enmsell Global</h2>
             <p class="login-tagline-gold">Inicia sesión para transferir con seguridad y elegancia</p>
@@ -1104,7 +1127,6 @@
                     Continuar con Google
                 </button>
 
-                <!-- Divider -->
                 <div style="display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0;">
                     <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
                     <span style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap;">o con
@@ -1112,7 +1134,6 @@
                     <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
                 </div>
 
-                <!-- Phone Login -->
                 <div id="phone-login-section">
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem;">
                         <select id="phone-country-select" class="premium-select"
@@ -1136,7 +1157,6 @@
                     </button>
                 </div>
 
-                <!-- OTP Verification (hidden by default) -->
                 <div id="phone-otp-section" style="display: none; margin-top: 1rem;">
                     <p style="color: var(--gold); font-size: 0.85rem; margin-bottom: 0.8rem;">Ingresa el código de 6
                         dígitos enviado a tu teléfono:</p>
@@ -1149,7 +1169,6 @@
                     </button>
                 </div>
 
-                <!-- reCAPTCHA container (invisible) -->
                 <div id="recaptcha-container"></div>
             </div>
             <button class="btn-signin w-full mt-lg" style="border-color: var(--text-muted); color: var(--text-muted);"
@@ -1157,17 +1176,15 @@
         </div>
     </div>
 
-    <!-- Country Picker Modal -->
     <div id="country-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass" style="max-height: 80vh; overflow-y: auto;">
             <h3>Seleccionar País</h3>
             <div id="country-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
-                <!-- Countries injected here -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Mobile Navigation -->
     <div class="mobile-nav">
         <div class="mobile-nav-item active" onclick="showView('home')" id="mob-home">
             <span class="material-icons">home</span>
@@ -1199,7 +1216,6 @@
         </div>
     </div>
 
-    <!-- WhatsApp Floating Button -->
     <a href="https://wa.me/56950628724" class="whatsapp-float" target="_blank">
         <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 448 512" fill="white">
             <path
@@ -1207,7 +1223,6 @@
         </svg>
     </a>
 
-    <!-- User History Modal (For Admins) -->
     <div id="user-history-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
             <h2 style="color:var(--gold); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
@@ -1215,7 +1230,7 @@
                 <span id="user-history-email" style="color:white; font-size: 1.1rem; font-family: monospace;"></span>
             </h2>
             <div id="user-history-list" class="transactions-list" style="margin-top: 1rem;">
-                <!-- User transactions injected here -->
+                
             </div>
             <div style="margin-top: 1.5rem; text-align: right;">
                 <button class="btn-primary" onclick="closeUserHistoryModal()">Cerrar</button>
@@ -1223,7 +1238,6 @@
         </div>
     </div>
 
-    <!-- Logout Success Modal -->
     <div id="logout-modal" class="modal-overlay"
         style="display: none; z-index: 9999; background: rgba(0,0,0,0.8); justify-content: center; align-items: center;">
         <div class="glass modal-content text-center p-xl" style="max-width: 400px;">
@@ -1237,23 +1251,23 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
-    <!-- External Services -->
+    <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-functions-compat.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
-    <script defer src="api.js?v=10.0"></script>
-    <script defer src="auth.js?v=10.0"></script>
-    <script defer src="app.js?v=10.0"></script>
-    <script defer src="calculator.js?v=10.0"></script>
-    <script defer src="transactions.js?v=10.0"></script>
-    <script defer src="beneficiaries.js?v=10.0"></script>
-    <script defer src="ui.js?v=10.0"></script>
-    <script defer src="tracking.js?v=10.0"></script>
-    <script defer src="admin.js?v=10.0"></script>
+    <script defer src="js/api.js?v=10.1"></script>
+    <script defer src="js/auth.js?v=10.1"></script>
+    <script defer src="js/app.js?v=10.1"></script>
+    <script defer src="js/calculator.js?v=10.1"></script>
+    <script defer src="js/transactions.js?v=10.1"></script>
+    <script defer src="js/beneficiaries.js?v=10.1"></script>
+    <script defer src="js/ui.js?v=10.1"></script>
+    <script defer src="js/tracking.js?v=10.1"></script>
+    <script defer src="js/admin.js?v=10.1"></script>
 </body>
 
 </html>
