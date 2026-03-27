@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "app.web.enmssellchanges_premium.twa",
-        "sha256_cert_fingerprints": ["16:D1:67:6E:14:AF:3F:27:C3:D3:72:3D:67:05:64:B0:80:9E:BC:B3:D4:91:DC:06:B5:84:5A:B3:13:58:E6:3B"]
+        "package_name": "com.enmssell.changes",
+        "sha256_cert_fingerprints": ["44:9B:E3:92:C4:2A:F6:E0:78:BF:E6:90:78:57:90:2C:56:91:45:D6:80:A1:98:46:9F:1B:AF:2F:79:F8:D4:18"]
       }
     }]

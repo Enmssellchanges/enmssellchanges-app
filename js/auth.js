@@ -1,9 +1,21 @@
+/**
+ * @file auth.js
+ * @description Gestiona todo el ciclo de autenticación del usuario.
+ *   - Listener de `onAuthStateChanged` que actualiza el estado global `user`
+ *   - Login con Google (popup)
+ *   - Login con teléfono vía SMS (reCAPTCHA invisible)
+ *   - UI dinámica post-login/logout (nav, avatar, botón admin)
+ *   - Carga y guardado del perfil del usuario en Firestore
+ *   - Carga dinámica del script admin.js solo para el administrador
+ */
+
+// ── Listener de estado de autenticación ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof auth !== 'undefined' && auth) {
         auth.onAuthStateChanged(firebaseUser => {
             if (firebaseUser) {
                 // Check for admin email (case insensitive for safety). Safely check if email exists (for phone auth)
-                const isAdmin = firebaseUser.email ? firebaseUser.email.toLowerCase() === 'enmssellchanges@gmail.com' : false;
+                const isAdmin = firebaseUser.email ? firebaseUser.email.toLowerCase() === APP_CONSTANTS.ADMIN_EMAIL : false;
 
                 user = {
                     name: firebaseUser.displayName || firebaseUser.phoneNumber || 'Usuario',
@@ -45,6 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ── Modal de Login ──────────────────────────────────────────────────────────────────
+
+/**
+ * Abre el modal de inicio de sesión y pre-rellena el teléfono y país
+ * guardados en localStorage de la última sesión.
+ */
 function openLogin() {
     document.getElementById('login-modal').style.display = 'flex';
     // Pre-fill last used phone number
@@ -60,6 +78,10 @@ function openLogin() {
     }
 }
 
+/**
+ * Cierra el modal de inicio de sesión y resetea el flujo de OTP
+ * para que la próxima apertura inicie desde el paso del número de teléfono.
+ */
 function closeLogin() {
     document.getElementById('login-modal').style.display = 'none';
     // Reset phone login state when closing
@@ -71,19 +93,29 @@ function closeLogin() {
     if (otpInput) otpInput.value = '';
 }
 
-// ── Phone Auth ────────────────────────────────────────────────────────────────
+// ── Autenticación por Teléfono (SMS / OTP) ───────────────────────────────────────────────
 var phoneConfirmationResult = null;
 var recaptchaVerifier = null;
 
+/**
+ * Inicializa el reCAPTCHA invisible de Firebase una única vez.
+ * Si ya existe un verificador activo, no hace nada.
+ */
 function setupRecaptcha() {
     if (recaptchaVerifier) return; // Already set up
     recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         size: 'invisible',
-        callback: () => { console.log('reCAPTCHA solved'); }
+        callback: () => { }
     });
     recaptchaVerifier.render().catch(err => console.warn('reCAPTCHA render:', err));
 }
 
+/**
+ * Maneja el envío del código SMS al número de teléfono introducido.
+ * Construye el número completo (prefijo de país + número local), inicializa
+ * el reCAPTCHA y llama a `signInWithPhoneNumber`. Si tiene éxito, muestra
+ * el campo de OTP y recuerda el teléfono en localStorage.
+ */
 function handlePhoneSendCode() {
     const countrySelect = document.getElementById('phone-country-select');
     const phoneInput = document.getElementById('phone-login-input');
@@ -133,6 +165,10 @@ function handlePhoneSendCode() {
         });
 }
 
+/**
+ * Verifica el código OTP introducido por el usuario contra `phoneConfirmationResult`.
+ * Si el código es correcto, cierra el modal de login y limpia el estado de auth.
+ */
 function handlePhoneVerifyCode() {
     const otpInput = document.getElementById('phone-otp-input');
     if (!otpInput || !otpInput.value.trim() || otpInput.value.length < 6) {
@@ -161,7 +197,14 @@ function handlePhoneVerifyCode() {
         });
 }
 
+// ── Autenticación con Google ─────────────────────────────────────────────────────────────
 var isLoggingIn = false;
+
+/**
+ * Inicia el flujo de autenticación con Google usando un popup.
+ * Previene multiples llamadas simultáneas con la flag `isLoggingIn`.
+ * Ignora los errores de popup cancelado por el usuario.
+ */
 function handleGoogleLogin() {
 
     // Forzar el estado a false para asegurar que no esté bloqueado permanentemente
@@ -196,6 +239,13 @@ function handleGoogleLogin() {
     });
 }
 
+// ── Actualización de la UI de autenticación ──────────────────────────────────────────────
+
+/**
+ * Actualiza la barra de navegación para mostrar el avatar, nombre y botón
+ * de salida del usuario autenticado. Carga el script de admin si el usuario
+ * tiene el rol de administrador.
+ */
 function updateAuthUI() {
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
@@ -218,9 +268,22 @@ function updateAuthUI() {
         if (adminNav) adminNav.style.display = 'inline-block';
         const mobAdminNav = document.getElementById('mob-admin');
         if (mobAdminNav) mobAdminNav.style.display = 'flex';
+        
+        if (!document.getElementById('admin-script')) {
+            const script = document.createElement('script');
+            script.id = 'admin-script';
+            script.src = `js/admin.js?v=${APP_CONSTANTS.ADMIN_SCRIPT_VERSION}`;
+            script.defer = true;
+            document.body.appendChild(script);
+        }
     }
 }
 
+/**
+ * Restaura la barra de navegación al estado de usuario anónimo:
+ * muestra el botón "Iniciar Sesión", oculta el nav de admin
+ * y redirige al home si estaba en una vista protegida.
+ */
 function resetAuthUI() {
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
@@ -246,6 +309,16 @@ function resetAuthUI() {
     }
 }
 
+// ── Perfil de usuario ──────────────────────────────────────────────────────────────────
+
+/**
+ * Carga el perfil del usuario desde Firestore y actualiza los campos
+ * de la vista Profile y el formulario de envío (nombre del remitente).
+ * También carga la lista de beneficiarios si la función está disponible.
+ *
+ * @async
+ * @returns {Promise<void>}
+ */
 async function loadUserProfile() {
     if (!user || !user.uid) return;
     try {
@@ -303,6 +376,13 @@ async function loadUserProfile() {
     }
 }
 
+/**
+ * Persiste los datos del perfil del usuario (nombre, teléfono, RUT/Cedúnla)
+ * en Firestore usando merge para no sobrescribir otros campos.
+ *
+ * @async
+ * @returns {Promise<void>}
+ */
 async function saveUserProfile() {
     if (!user || !user.uid) return;
     const nameEl = document.getElementById('user-full-name');
@@ -326,6 +406,12 @@ async function saveUserProfile() {
     }
 }
 
+// ── Logout ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Cierra la sesión del usuario en Firebase y muestra el modal de confirmación
+ * de sesión cerrada si existe en el DOM.
+ */
 function handleLogout() {
     if (auth) {
         auth.signOut().then(() => {
@@ -342,6 +428,9 @@ function handleLogout() {
     }
 }
 
+/**
+ * Cierra el modal de sesión cerrada y redirige al home.
+ */
 function closeLogoutModal() {
     const modal = document.getElementById('logout-modal');
     if (modal) modal.style.display = 'none';

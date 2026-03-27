@@ -1,4 +1,14 @@
-// Firebase Configuration
+/**
+ * @file app.js
+ * @description Módulo principal de la aplicación.
+ *   - Inicializa Firebase (Auth, Firestore, Storage, Messaging)
+ *   - Declara variables globales de estado (user, countries, currentTransfer, etc.)
+ *   - Registra el Service Worker para PWA
+ *   - Arranca los listeners globales de Firestore al cargar la página
+ *   - Maneja el ciclo de vida de las transacciones en tiempo real
+ */
+
+// ── Firebase Configuration ──────────────────────────────────────────────────
 const firebaseConfig = {
   projectId: "enmssellchanges-premium",
   appId: "1:591347469322:web:aadf4993968d3cbf57e3f3",
@@ -30,7 +40,6 @@ if (typeof firebase !== 'undefined') {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/firebase-messaging-sw.js')
-        .then(reg => console.log('[SW] Registered:', reg.scope))
         .catch(err => console.warn('[SW] Registration failed:', err));
     });
   }
@@ -216,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+// ── Binance P2P Monitor ──────────────────────────────────────────────────────
 let binanceInterval = null;
 /**
  * Initializes the Binance P2P monitor, fetches initial data,
@@ -234,13 +244,15 @@ function initBinanceMonitor() {
     // El Monitor Yadio se actualiza automáticamente via Cloud Function cada 15 min.
   }, 5 * 60 * 1000); // 5 minutes
 }
-// Foreground messaging handler
+// ── Foreground Messaging ────────────────────────────────────────────────────
+// Muestra un toast cuando llega una notificación con la app en primer plano.
 if (messaging) {
   messaging.onMessage(payload => {
 
     showToast(payload.notification.title, payload.notification.body);
   });
 }
+// ── Animaciones de Toast (inyectadas dinámicamente) ────────────────────────
 const style = document.createElement('style');
 style.innerHTML = `
     @keyframes slideInNotification {

@@ -1,6 +1,36 @@
 <!DOCTYPE html>
+<!-- ================================================================
+     ENMSSELLCHANGES — index.html
+     ================================================================
+     MAPA DE SECCIONES (busca con Ctrl+F el comentario para saltar):
+
+     [HEAD]          — Meta, fuentes, CSS
+     [NAV]           — Barra de navegación superior
+     [VISTA: HOME]   — Pantalla de inicio con calculadora rápida
+     [VISTA: SEND]   — Formulario de nuevo envío
+     [VISTA: HISTORY]— Historial de transacciones del usuario
+     [VISTA: TRACKING]— Seguimiento de envíos en tiempo real
+     [VISTA: PROFILE]— Perfil del usuario
+     [VISTA: ADMIN]  — Panel de administración
+       [ADMIN: CUENTAS]       — Editor de cuentas bancarias
+       [ADMIN: TASAS]         — Editor de tasas de cambio
+       [ADMIN: PUSH]          — Envío de notificaciones push
+       [ADMIN: PROMOCION]     — Modal promocional
+       [ADMIN: BINANCE]       — Monitores Binance P2P
+     [FOOTER]        — Horarios y términos
+     [MODAL: PROMO]  — Modal de promoción
+     [MODAL: REJECT] — Modal de rechazo de tx (admin)
+     [MODAL: CONFIRM]— Modal de autorización de tx (admin)
+     [MODAL: LOGIN]  — Modal de inicio de sesión
+     [MODAL: COUNTRY]— Modal selector de país
+     [MODAL: USER-HISTORY] — Modal de historial de usuario (admin)
+     [MODAL: LOGOUT] — Modal de sesión cerrada
+     [MOBILE NAV]    — Barra de navegación inferior (móvil)
+     [SCRIPTS]       — Carga de scripts Firebase y módulos JS
+     ================================================================ -->
 <html lang="es">
 
+<!-- ============================================================ [HEAD] ============================================================ -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +53,7 @@
     <link rel="apple-touch-icon" href="assets/img/logo-enmssell.webp">
 </head>
 
+<!-- ============================================================ [NAV] ============================================================ -->
 <body>
     <div class="background-canvas"></div>
     <audio id="notification-sound" preload="auto">
@@ -33,10 +64,9 @@
         <div class="logo-container" onclick="showView('home')">
             <img src="assets/img/logo-enmssell.webp" class="logo" alt="Enmssell Logo">
             <div class="logo-text">Enmsell Global</div>
-            <div id="connection-status" class="flex-center gap-xs"
-                style="margin-left: 10px; font-size: 10px; color: var(--text-muted); background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3);">
-                <span class="material-icons text-success" style="font-size: 10px;">cloud_done</span>
-                <span id="status-text" class="uppercase" style="letter-spacing: 0.5px;">Cloud Live</span>
+            <div id="connection-status" class="flex-center gap-xs connection-status-pill">
+                <span class="material-icons text-success nav-status-icon">cloud_done</span>
+                <span id="status-text" class="uppercase nav-status-text">Cloud Live</span>
             </div>
         </div>
         <div class="nav-links">
@@ -44,15 +74,13 @@
             <a onclick="showView('send')" id="nav-send">Enviar Pago</a>
             <a onclick="showView('history')" id="nav-history">Historial</a>
             <a onclick="showView('tracking')" id="nav-tracking">Seguimiento</a>
-            <a href="https://wa.me/56950628724" target="_blank" id="nav-support" class="flex-center gap-xs font-bold"
-                style="color: #25D366;">
-                <span class="material-icons" style="font-size: 18px;">whatsapp</span> Soporte
+            <a href="https://wa.me/56950628724" target="_blank" id="nav-support" class="flex-center gap-xs font-bold nav-link-support">
+                <span class="material-icons">whatsapp</span> Soporte
             </a>
-            <a onclick="toggleTheme()" id="nav-theme" class="flex-center gap-xs font-bold"
-                style="color: var(--text-main); cursor: pointer;">
-                <span class="material-icons" style="font-size: 18px;">palette</span> Aspecto
+            <a onclick="toggleTheme()" id="nav-theme" class="flex-center gap-xs font-bold nav-link-theme">
+                <span class="material-icons">palette</span> Aspecto
             </a>
-            <a onclick="showView('admin')" id="nav-admin" style="display:none;">Admin</a>
+            <a onclick="showView('admin')" id="nav-admin" class="nav-admin-hidden">Admin</a>
         </div>
         <div id="auth-container">
             <button class="btn-signin" onclick="openLogin()">Iniciar Sesión</button>
@@ -61,30 +89,29 @@
 
     <main>
         
+        <!-- ============================================================ [VISTA: HOME] ============================================================ -->
         <section id="view-home" class="hero">
-            <div class="logo-hero-container" style="margin-bottom: 0.8rem;">
+            <div class="logo-hero-container logo-hero-mb">
                 <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo Hero" class="logo-hero-img">
             </div>
 
-            <div class="flex-center flex-wrap gap-2xl" style="align-items: flex-start; width: 100%;">
-                <div class="text-center" style="flex: 1; min-width: 300px;">
+            <div class="flex-center flex-wrap gap-2xl hero-layout">
+                <div class="text-center hero-text-col">
                     <h2 class="hero-tagline mb-md">
                         Tu tranquilidad en cada envío,<br>Tu confianza en cada Cambio.
                     </h2>
 
                     <div class="flex-center gap-lg mb-xl mt-xl">
-                        <button class="btn-primary" onclick="showView('send')" style="padding: 1rem 2rem;">Enviar
+                        <button class="btn-primary btn-hero-send" onclick="showView('send')">Enviar
                             Ahora</button>
                     </div>
 
                     <div class="glass p-lg mt-xl">
-                        <div class="text-center mb-md"
-                            style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <div class="text-center mb-md rates-header">
                             <h3 class="mb-0 text-teal">Tasas del Día</h3>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Tiempo real
+                            <div class="rates-subtitle">Tiempo real
                             </div>
-                            <div id="global-update-time"
-                                style="font-size: 0.75rem; color: var(--gold); margin-top: 0.1rem; opacity: 0.9;">
+                            <div id="global-update-time" class="rates-update-time">
                             </div>
                         </div>
                         <div id="home-rates-grid" class="form-grid">
@@ -94,7 +121,7 @@
                 </div>
 
                 <div class="send-widget glass">
-                    <h2 style="margin-bottom: 1.5rem;">Cálculo Rápido</h2>
+                    <h2 class="widget-title">Cálculo Rápido</h2>
                     <div class="exchange-rate" id="quick-rate">1 CLP = 0.05 VES</div>
 
                     <div class="input-group">
@@ -103,8 +130,7 @@
                                 <span>Tú envías</span>
                                 <input type="number" id="quick-send-amount" value="100000"
                                     oninput="debouncedCalculateQuick()">
-                                <div id="quick-min-label"
-                                    style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Cargando
+                                <div id="quick-min-label" class="min-label">Cargando
                                     mínimo...</div>
                             </div>
                             <div class="currency-select" id="quick-source-selector"
@@ -125,60 +151,50 @@
                             </div>
                         </div>
                         
-                        <div id="quick-ves-bcv-info"
-                            style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+                        <div id="quick-ves-bcv-info" class="currency-panel">
                             <div>
                                 <div class="currency-info-label">Cambio a Dólar BCV</div>
                                 <div class="currency-info-value">
-                                    <span class="font-black text-teal" style="font-size: 1.1rem;">$</span>
+                                    <span class="font-black text-teal currency-symbol-teal">$</span>
                                     <input type="number" id="quick-ves-usd-input"
                                         class="editable-rate-input font-black text-white" value="0.0000" step="0.0001"
                                         oninput="debouncedCalculateBCVQuick()">
-                                    <span class="font-black text-white" style="font-size: 1.1rem;">USD</span>
+                                    <span class="font-black text-white currency-symbol-teal">USD</span>
                                 </div>
-                                <div id="quick-ves-bcv-formula" class="text-muted"
-                                    style="font-size: 0.6rem; margin-top: 0.2rem;">Formula: --
+                                <div id="quick-ves-bcv-formula" class="text-muted currency-formula">Formula: --
                                 </div>
                             </div>
-                            <div id="bcv-container" class="glass flex-center gap-md"
-                                style="padding: 0.5rem 1rem; border-color: rgba(212, 175, 55, 0.3); background: rgba(0,0,0,0.3); border-radius: 12px;">
-                                <img src="assets/img/logo-bcv.webp?v=2" alt="BCV Logo" style="height: 25px; object-fit: contain;">
-                                <div style="text-align: left;">
-                                    <div class="text-gold font-bold uppercase"
-                                        style="font-size: 0.6rem; letter-spacing: 1px;">
+                            <div id="bcv-container" class="glass flex-center gap-md bcv-container-panel">
+                                <img src="assets/img/logo-bcv.webp?v=2" alt="BCV Logo" class="panel-logo">
+                                <div class="panel-text-left">
+                                    <div class="text-gold font-bold uppercase panel-label-sm">
                                         Tasa Oficial BCV</div>
-                                    <div id="bcv-rate-display" class="font-black text-white" style="font-size: 0.9rem;">
+                                    <div id="bcv-rate-display" class="font-black text-white panel-rate-display">
                                         411,0857 Bs/USD</div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div id="quick-ves-monitor-info"
-                            style="display: none; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+                        <div id="quick-ves-monitor-info" class="currency-panel">
                             <div>
-                                <div class="currency-info-label" style="color: var(--accent);">Cambio a Dólar Paralelo
+                                <div class="currency-info-label currency-label-accent">Cambio a Dólar Paralelo
                                 </div>
                                 <div class="currency-info-value">
-                                    <span class="font-black" style="font-size: 1.1rem; color: var(--accent);">$</span>
+                                    <span class="font-black currency-symbol-gold">$</span>
                                     <input type="number" id="quick-ves-monitor-input"
                                         class="editable-rate-input font-black text-white" value="0.0000" step="0.0001"
                                         oninput="if(typeof debouncedCalculateMonitorQuick === 'function') debouncedCalculateMonitorQuick()">
-                                    <span class="font-black text-white" style="font-size: 1.1rem;">USD</span>
+                                    <span class="font-black text-white currency-symbol-teal">USD</span>
                                 </div>
-                                <div id="quick-ves-monitor-formula" class="text-muted"
-                                    style="font-size: 0.6rem; margin-top: 0.2rem;">Formula: --
+                                <div id="quick-ves-monitor-formula" class="text-muted currency-formula">Formula: --
                                 </div>
                             </div>
-                            <div id="monitor-container" class="glass flex-center gap-md"
-                                style="padding: 0.5rem 1rem; border-color: rgba(94, 234, 212, 0.3); background: rgba(0,0,0,0.3); border-radius: 12px;">
-                                <img src="assets/img/logo-monitor.webp?v=2" alt="Monitor Logo"
-                                    style="height: 25px; object-fit: contain; border-radius: 50%;">
-                                <div style="text-align: left;">
-                                    <div class="text-gold font-bold uppercase"
-                                        style="font-size: 0.6rem; letter-spacing: 1px;">
+                            <div id="monitor-container" class="glass flex-center gap-md monitor-container-panel">
+                                <img src="assets/img/logo-monitor.webp?v=2" alt="Monitor Logo" class="panel-logo-round">
+                                <div class="panel-text-left">
+                                    <div class="text-gold font-bold uppercase panel-label-sm">
                                         Dólar Paralelo</div>
-                                    <div id="monitor-rate-display" class="font-black text-white"
-                                        style="font-size: 0.9rem;">
+                                    <div id="monitor-rate-display" class="font-black text-white panel-rate-display">
                                         0.00 Bs/USD</div>
                                 </div>
                             </div>
@@ -190,15 +206,15 @@
             </div>
         </section>
 
+        <!-- ============================================================ [VISTA: SEND] ============================================================ -->
         <section id="view-send" class="send-section" style="display:none;">
             <div class="send-container">
                 
                 <div id="user-accounts-section" class="text-left">
                     <details class="panel-dark mb-lg">
-                        <summary class="flex-between p-sm cursor-pointer font-bold text-teal"
-                            style="font-size: 0.9rem;">
+                        <summary class="flex-between p-sm cursor-pointer font-bold text-teal summary-label-sm">
                             Cuentas Disponibles para Transferir
-                            <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                            <div class="material-icons summary-expand-icon">expand_more</div>
                         </summary>
                         <div id="user-accounts-list" class="flex-col gap-md mt-lg">
                             
@@ -207,7 +223,7 @@
                 </div>
 
                 <div class="send-widget glass">
-                    <h2 style="margin-bottom: 1.5rem;">Nuevo Envío</h2>
+                    <h2 class="widget-title">Nuevo Envío</h2>
                     <div class="exchange-rate" id="current-rate">1 CLP = 0.05 VES</div>
 
                     <div class="input-group">
@@ -215,8 +231,7 @@
                             <div>
                                 <span>Tú envías</span>
                                 <input type="number" id="send-amount" value="100000" oninput="debouncedCalculate()">
-                                <div id="min-label"
-                                    style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                <div id="min-label" class="min-label">
                                     Cargando
                                     mínimo...</div>
                             </div>
@@ -237,50 +252,46 @@
                             </div>
                         </div>
                         
-                        <div id="ves-bcv-info"
-                            style="display: none; align-items: center; justify-content: space-between; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+                        <div id="ves-bcv-info" class="currency-panel-alt">
                             <div>
                                 <div class="currency-info-label">Equivalente en Dólar BCV</div>
                                 <div class="currency-info-value">
-                                    <span class="font-black text-teal" style="font-size: 1.1rem;">$</span>
+                                    <span class="font-black text-teal currency-symbol-teal">$</span>
                                     <input type="number" id="ves-usd-input"
                                         class="editable-rate-input font-black text-white" value="0.0000" step="0.0001"
                                         oninput="debouncedCalculateBCVSend()">
-                                    <span class="font-black text-white" style="font-size: 1.1rem;">USD</span>
+                                    <span class="font-black text-white currency-symbol-teal">USD</span>
                                 </div>
-                                <div id="ves-bcv-formula" class="text-muted"
-                                    style="font-size: 0.65rem; margin-top: 0.3rem; font-family: monospace;">
+                                <div id="ves-bcv-formula" class="text-muted currency-formula-mono">
                                     Formula: --</div>
                             </div>
                             <div class="text-right">
-                                <div id="ves-bcv-rate-small" class="text-muted" style="font-size: 0.65rem;">
+                                <div id="ves-bcv-rate-small" class="text-muted rate-small-text">
                                     Tasa: --</div>
-                                <div class="text-teal font-bold" style="font-size: 0.6rem;">
+                                <div class="text-teal font-bold rate-tag-bcv">
                                     PROMEDIO BCV</div>
                             </div>
                         </div>
 
-                        <div id="ves-monitor-info"
-                            style="display: none; align-items: center; justify-content: space-between; padding: 1.2rem; border-top: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.2s ease;">
+                        <div id="ves-monitor-info" class="currency-panel-alt">
                             <div>
-                                <div class="currency-info-label" style="color: var(--accent);">Equivalente en Dólar
+                                <div class="currency-info-label currency-label-accent">Equivalente en Dólar
                                     Paralelo
                                 </div>
                                 <div class="currency-info-value">
-                                    <span class="font-black" style="font-size: 1.1rem; color: var(--accent);">$</span>
+                                    <span class="font-black currency-symbol-gold">$</span>
                                     <input type="number" id="ves-monitor-usd-input"
                                         class="editable-rate-input font-black text-white" value="0.0000" step="0.0001"
                                         oninput="if(typeof debouncedCalculateMonitorSend === 'function') debouncedCalculateMonitorSend()">
-                                    <span class="font-black text-white" style="font-size: 1.1rem;">USD</span>
+                                    <span class="font-black text-white currency-symbol-teal">USD</span>
                                 </div>
-                                <div id="ves-monitor-formula" class="text-muted"
-                                    style="font-size: 0.65rem; margin-top: 0.3rem; font-family: monospace;">
+                                <div id="ves-monitor-formula" class="text-muted currency-formula-mono">
                                     Formula: --</div>
                             </div>
                             <div class="text-right">
-                                <div id="ves-monitor-rate-small" class="text-muted" style="font-size: 0.65rem;">
+                                <div id="ves-monitor-rate-small" class="text-muted rate-small-text">
                                     Tasa: --</div>
-                                <div class="text-gold font-bold" style="font-size: 0.6rem;">
+                                <div class="text-gold font-bold rate-tag-monitor">
                                     DÓLAR PARALELO</div>
                             </div>
                         </div>
@@ -293,22 +304,19 @@
                                 oninput="this.dataset.userEdited='true'">
                         </div>
 
-                        <div id="saved-beneficiaries-container" style="display:block; margin-bottom: 0.5rem;">
-                            <details
-                                style="background: rgba(204, 163, 83, 0.05); padding: 0.8rem; border-radius: 12px; border: 1px solid rgba(204, 163, 83, 0.2); cursor: pointer;">
-                                <summary class="text-teal font-bold"
-                                    style="display: flex; align-items: center; gap: 5px; outline: none; list-style: none;">
-                                    <span class="material-icons" style="font-size: 18px;">people</span>
+                        <div id="saved-beneficiaries-container" class="saved-beneficiaries-wrap">
+                            <details class="beneficiary-panel">
+                                <summary class="text-teal font-bold beneficiary-summary">
+                                    <span class="material-icons beneficiary-summary-icon">people</span>
                                     Destinatarios Guardados
-                                    <span class="material-icons"
-                                        style="margin-left: auto; font-size: 18px;">expand_more</span>
+                                    <span class="material-icons beneficiary-expand-icon">expand_more</span>
                                 </summary>
-                                <div style="margin-top: 1rem;">
+                                <div class="beneficiary-select-wrapper">
                                     <select id="saved-beneficiaries-select" class="premium-select"
                                         onchange="loadSavedBeneficiary()">
                                         <option value="">Cargando...</option>
                                     </select>
-                                    <div id="beneficiary-actions" style="margin-top: 0.5rem;"></div>
+                                    <div id="beneficiary-actions" class="beneficiary-actions-wrap"></div>
                                 </div>
                             </details>
                         </div>
@@ -321,17 +329,15 @@
                         <div id="ves-fields" style="display:none;" class="col-span-2 form-grid">
                             <div class="col-span-2">
                                 <span class="text-teal">Tipo de Envío a Venezuela</span>
-                                <div style="display: flex; gap: 0.6rem; margin-top: 0.5rem;">
-                                    <button type="button" id="ves-btn-mobile" class="ves-type-btn active"
-                                        onclick="selectVesType('mobile')"
-                                        style="flex: 1; padding: 0.7rem; border-radius: 12px; border: 2px solid var(--gold); background: rgba(204, 163, 83, 0.15); color: var(--gold); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <span class="material-icons" style="font-size: 18px;">smartphone</span>
+                                <div class="ves-type-selector">
+                                    <button type="button" id="ves-btn-mobile" class="ves-type-btn-active"
+                                        onclick="selectVesType('mobile')">
+                                        <span class="material-icons ves-type-icon">smartphone</span>
                                         Pago Móvil
                                     </button>
-                                    <button type="button" id="ves-btn-transfer" class="ves-type-btn"
-                                        onclick="selectVesType('transfer')"
-                                        style="flex: 1; padding: 0.7rem; border-radius: 12px; border: 2px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: var(--text-muted); font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                                        <span class="material-icons" style="font-size: 18px;">account_balance</span>
+                                    <button type="button" id="ves-btn-transfer" class="ves-type-btn-inactive"
+                                        onclick="selectVesType('transfer')">
+                                        <span class="material-icons ves-type-icon">account_balance</span>
                                         Transferencia
                                     </button>
                                 </div>
@@ -344,15 +350,13 @@
                             </div>
                             <div class="col-span-2">
                                 <span>Cédula de Identidad</span>
-                                <div style="display: flex; gap: 0.4rem;">
-                                    <select id="ves-id-prefix" class="premium-select"
-                                        style="flex: 0 0 65px; font-size: 0.9rem; padding: 0.6rem 0.3rem; text-align: center; font-weight: 700; border-color: var(--gold);">
+                                <div class="ves-id-row">
+                                    <select id="ves-id-prefix" class="premium-select ves-id-prefix-select">
                                         <option value="V">V</option>
                                         <option value="J">J</option>
                                         <option value="E">E</option>
                                     </select>
-                                    <input type="text" id="ves-id" class="premium-input" placeholder="Ej: 27123456"
-                                        style="flex: 1; margin-top: 0;"
+                                    <input type="text" id="ves-id" class="premium-input ves-id-input" placeholder="Ej: 27123456"
                                         oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
@@ -568,28 +572,23 @@
 
                     <div class="recipient-form text-left mt-lg">
                         <span class="text-teal font-bold">Mensaje / Nota para el Administrador (Opcional)</span>
-                        <textarea id="tx-note" class="search-bar mt-sm p-md" rows="2"
-                            style="width: 100%; height: auto; border-radius: 12px;"
+                        <textarea id="tx-note" class="search-bar mt-sm p-md tx-note-field" rows="2"
                             placeholder="Ej: Nota adicional para el pago..."></textarea>
                     </div>
 
                     <div class="recipient-form text-left mt-md">
                         <span>Adjuntar Comprobante de Pago (Imagen)</span>
-                        <input type="file" id="payment-proof" accept="image/*" class="search-bar mt-sm p-md"
-                            style="width: 100%;" onchange="handleFileSelect(event)">
-                        <div id="proof-preview-container" style="display:none; margin-top: 1rem; position: relative;">
-                            <img id="proof-preview" src=""
-                                style="width: 100%; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <input type="file" id="payment-proof" accept="image/*" class="search-bar mt-sm p-md proof-file-input"
+                            onchange="handleFileSelect(event)">
+                        <div id="proof-preview-container" class="proof-preview-wrap">
+                            <img id="proof-preview" src="" class="proof-preview-img">
                         </div>
                     </div>
 
-                    <div class="recipient-form text-left mt-sm"
-                        style="margin-bottom: 1.5rem; background: rgba(204, 163, 83, 0.05); padding: 1rem; border-radius: 12px; border: 1px solid rgba(204, 163, 83, 0.2);">
-                        <label
-                            style="display: flex; align-items: center; gap: 0.8rem; cursor: pointer; color: white; font-size: 0.9rem;">
-                            <input type="checkbox" id="save-beneficiary"
-                                style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--gold);">
-                            <span style="flex: 1;">Guardar estos datos para futuros envíos</span>
+                    <div class="recipient-form save-beneficiary-panel text-left mt-sm">
+                        <label class="save-beneficiary-label">
+                            <input type="checkbox" id="save-beneficiary" class="save-beneficiary-checkbox">
+                            <span class="save-beneficiary-text">Guardar estos datos para futuros envíos</span>
                         </label>
                     </div>
 
@@ -599,12 +598,13 @@
             </div>
         </section>
 
+        <!-- ============================================================ [VISTA: HISTORY] ============================================================ -->
         <section id="view-history" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Historial de Transacciones</h2>
                 <div class="flex-align-center flex-wrap gap-md">
-                    <div class="search-bar-wrapper" style="padding: 5px 10px; border-radius: 10px;">
-                        <span class="material-icons text-gold" style="font-size: 16px;">calendar_today</span>
+                    <div class="search-bar-wrapper search-bar-wrapper-date">
+                        <span class="material-icons text-gold icon-16">calendar_today</span>
                         <input type="date" id="user-history-date-start" class="search-bar date-input w-110"
                             onchange="filterTransactions()">
                         <span class="text-muted">a</span>
@@ -622,6 +622,7 @@
             </div>
         </section>
 
+        <!-- ============================================================ [VISTA: TRACKING] ============================================================ -->
         <section id="view-tracking" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Rastreo de Envío</h2>
@@ -632,12 +633,13 @@
             </div>
         </section>
 
+        <!-- ============================================================ [VISTA: PROFILE] ============================================================ -->
         <section id="view-profile" class="history-section" style="display:none;">
             <div class="history-header">
                 <h2>Mi Perfil</h2>
                 <button class="btn-signin btn-logout" onclick="handleLogout()">
                     <div class="flex-align-center gap-sm">
-                        <span class="material-icons" style="font-size: 16px;">logout</span>
+                        <span class="material-icons nav-logout-icon">logout</span>
                         Cerrar Sesión
                     </div>
                 </button>
@@ -651,7 +653,7 @@
                         <img id="profile-pic" src="" alt="Avatar" class="profile-avatar">
                         <div id="profile-initials" class="avatar profile-initials">??</div>
                         <h3 id="profile-name-display" class="text-white mb-0">Usuario</h3>
-                        <p id="profile-email-display" class="text-muted mt-sm mb-0" style="font-size: 0.9rem;"></p>
+                        <p id="profile-email-display" class="text-muted mt-sm mb-0 profile-email-display"></p>
                     </div>
 
                     <div class="flex-col gap-md text-left">
@@ -672,12 +674,13 @@
             </div>
         </section>
         
+        <!-- ============================================================ [VISTA: ADMIN] ============================================================ -->
         <section id="view-admin" class="history-section" style="display:none;">
             <div class="history-header flex-wrap gap-lg">
                 <h2>Panel de Administración (Autorizaciones)</h2>
                 <div class="flex-align-center gap-md">
                     <button onclick="loadAdminData()" class="btn-primary btn-admin-refresh">
-                        <span class="material-icons" style="font-size: 18px;">refresh</span>
+                        <span class="material-icons icon-18">refresh</span>
                         Refrescar Autorizaciones
                     </button>
                     <div class="status-badge status-pending admin-safe-mode-badge">MODO SEGURO
@@ -697,18 +700,18 @@
                     <span id="history-toggle-icon" class="material-icons">expand_more</span>
                 </button>
 
-                <div id="admin-history-container" class="admin-history-wrapper" style="display: none;">
+                <div id="admin-history-container" class="admin-history-wrapper" style="display:none;">
                     <div class="flex-col gap-md mb-lg">
                         <div class="flex-align-center flex-wrap gap-md">
                             <div class="flex-align-center gap-sm flex-wrap">
                                 <div class="search-bar-wrapper">
-                                    <span class="material-icons text-gold" style="font-size: 18px;">event</span>
+                                    <span class="material-icons text-gold icon-18">event</span>
                                     <input type="date" id="admin-history-date-start" class="date-input"
                                         onchange="filterAdminHistory()">
                                 </div>
-                                <span class="text-muted" style="margin: 0 4px;">a</span>
+                                <span class="text-muted admin-separator-text">a</span>
                                 <div class="search-bar-wrapper">
-                                    <span class="material-icons text-gold" style="font-size: 18px;">event</span>
+                                    <span class="material-icons text-gold icon-18">event</span>
                                     <input type="date" id="admin-history-date-end" class="date-input"
                                         onchange="filterAdminHistory()">
                                 </div>
@@ -717,12 +720,12 @@
                                 class="search-bar admin-search-input min-w-200 flex-1"
                                 placeholder="Buscar por ID, nombre o monto..." oninput="filterAdminHistory()">
                             <button onclick="loadAdminData()" class="btn-signin admin-btn-refresh-small">
-                                <span class="material-icons" style="font-size: 16px;">refresh</span>
+                                <span class="material-icons icon-16">refresh</span>
                             </button>
                         </div>
-                        <div id="admin-bulk-actions" style="display: none; justify-content: flex-end;">
+                        <div id="admin-bulk-actions" class="admin-bulk-actions-row">
                             <button onclick="bulkDeleteAdminSelection()" class="btn-signin btn-admin-delete">
-                                <span class="material-icons" style="font-size: 18px;">delete_sweep</span>
+                                <span class="material-icons icon-18">delete_sweep</span>
                                 Eliminar Resultados Filtro
                             </button>
                         </div>
@@ -733,27 +736,23 @@
                 </div>
             </div>
 
-            <details
-                style="margin-bottom: 2rem; border: 1px solid var(--glass-border); border-radius: 12px; padding: 0.5rem; background: rgba(0,0,0,0.2);">
-                <summary
-                    style="font-size: 1.1rem; color: var(--gold); font-weight: 700; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+            <!-- [ADMIN: CUENTAS] -->
+            <details class="admin-details-panel">
+                <summary class="admin-details-summary">
                     Gestionar Cuentas de Pago
-                    <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                    <div class="material-icons admin-details-icon">expand_more</div>
                 </summary>
                 <div class="glass" style="padding: 1.5rem; margin-top: 1rem;">
                     <div id="admin-accounts-editor" style="margin-bottom: 2rem;">
                         <input type="hidden" id="edit-acc-index" value="-1">
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="admin-accounts-grid">
                             <div>
                                 <span>Nombre del Titular</span>
-                                <input type="text" id="new-acc-name" class="search-bar"
-                                    style="width: 100%; margin-top: 0.3rem;" placeholder="Ej: Enmsell Global">
+                                <input type="text" id="new-acc-name" class="search-bar admin-accounts-input" placeholder="Ej: Enmsell Global">
                             </div>
                             <div>
                                 <span>RUT / Cédula de Identidad</span>
-                                <input type="text" id="new-acc-id" class="search-bar"
-                                    style="width: 100%; margin-top: 0.3rem;" placeholder="Ej: 12.345.678-k">
+                                <input type="text" id="new-acc-id" class="search-bar admin-accounts-input" placeholder="Ej: 12.345.678-k">
                             </div>
                             <div>
                                 <span>Banco</span>
@@ -798,27 +797,26 @@
                 </div>
             </details>
 
-            <details class="panel-dark mb-xl">
-                <summary class="flex-between font-bold text-gold p-sm" style="font-size: 1.1rem; cursor: pointer;">
+            <!-- [ADMIN: TASAS] -->
+            <details class="admin-details-panel mb-xl">
+                <summary class="admin-details-summary">
                     Gestionar Tasas de Cambio
-                    <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                    <div class="material-icons admin-details-icon">expand_more</div>
                 </summary>
                 <div class="glass p-lg mt-md">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
-                        <h4 style="margin:0; font-size: 1rem; color: var(--gold);">Editor Manual</h4>
-                        <button class="btn-signin"
-                            style="font-size: 0.8rem; padding: 6px 12px; border-color: var(--accent-teal); color: var(--accent-teal); display: flex; align-items: center; gap: 4px;"
+                    <div class="admin-rates-header">
+                        <h4 class="admin-rates-title">Editor Manual</h4>
+                        <button class="btn-signin admin-rates-calc-btn"
                             onclick="autoCalculateRates()">
-                            <span class="material-icons" style="font-size: 16px;">calculate</span> Calcular Automático
+                            <span class="material-icons admin-rates-calc-icon">calculate</span> Calcular Automático
                         </button>
                     </div>
                     <div id="admin-rates-editor" class="flex-col gap-md">
                         
                     </div>
                     <button class="btn-primary mt-lg" onclick="saveNewRates()">Guardar Tasas Actualizadas</button>
-                    <div
-                        style="margin-top: 1rem; padding: 0.8rem; background: rgba(0,0,0,0.2); border-left: 3px solid var(--accent-teal); border-radius: 4px;">
-                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                    <div class="admin-rates-tip">
+                        <p>
                             <b>Tip Automático:</b> Se multiplica el <i>Factor Ganancia</i> por el monitor MÁXIMO del
                             país respectivo y se divide
                             entre el <i>Monitor CLP</i> para obtener la tasa.
@@ -827,64 +825,62 @@
                 </div>
             </details>
 
-            <details class="panel-dark mb-xl">
-                <summary class="flex-between font-bold text-gold p-sm" style="font-size: 1.1rem; cursor: pointer;">
+            <!-- [ADMIN: PUSH] -->
+            <details class="admin-details-panel mb-xl">
+                <summary class="admin-details-summary">
                     Notificaciones Push
-                    <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                    <div class="material-icons admin-details-icon">expand_more</div>
                 </summary>
                 <div class="glass p-lg mt-md">
-                    <h4 style="margin: 0 0 1rem; font-size: 1rem; color: var(--gold);">Enviar Promoción a Todos los
+                    <h4 class="admin-section-title">Enviar Promoción a Todos los
                         Usuarios</h4>
-                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <div class="admin-flex-col-gap">
                         <div>
-                            <span class="text-teal" style="font-size: 0.85rem;">Título</span>
+                            <span class="text-teal admin-label-sm">Título</span>
                             <input type="text" id="promo-title" class="search-bar w-full mt-xs"
                                 placeholder="Ej: 🎉 Oferta Especial">
                         </div>
                         <div>
-                            <span class="text-teal" style="font-size: 0.85rem;">Mensaje</span>
-                            <textarea id="promo-body" class="search-bar w-full mt-xs" rows="2"
-                                style="height: auto; border-radius: 12px;"
+                            <span class="text-teal admin-label-sm">Mensaje</span>
+                            <textarea id="promo-body" class="search-bar w-full mt-xs admin-promo-textarea" rows="2"
                                 placeholder="Ej: Envía hoy con tasa preferencial. ¡Solo por 24 horas!"></textarea>
                         </div>
-                        <button id="btn-send-promo" class="btn-primary" onclick="sendPromoNotification()"
-                            style="background: linear-gradient(135deg, var(--gold), #b8860b); padding: 0.8rem;">
-                            <span class="material-icons"
-                                style="font-size: 16px; vertical-align: middle; margin-right: 4px;">campaign</span>
+                        <button id="btn-send-promo" class="btn-primary admin-promo-btn" onclick="sendPromoNotification()">
+                            <span class="material-icons admin-promo-btn-icon">campaign</span>
                             Enviar Notificación
                         </button>
-                        <div id="promo-result"
-                            style="display: none; padding: 0.5rem; border-radius: 8px; font-size: 0.85rem; text-align: center;">
+                        <div id="promo-result" class="admin-promo-result">
                         </div>
                     </div>
             </details>
 
-            <details class="panel-dark mb-xl">
-                <summary class="flex-between font-bold text-gold p-sm" style="font-size: 1.1rem; cursor: pointer;">
+            <!-- [ADMIN: PROMOCION] -->
+            <details class="admin-details-panel mb-xl">
+                <summary class="admin-details-summary">
                     Promoción (Pantalla Inicial)
-                    <div class="material-icons" style="font-size: 1.2rem;">expand_more</div>
+                    <div class="material-icons admin-details-icon">expand_more</div>
                 </summary>
                 <div class="glass p-lg mt-md">
-                    <h4 style="margin: 0 0 1rem; font-size: 1rem; color: var(--gold);">Configurar Modal Promocional</h4>
-                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <h4 class="admin-section-title">Configurar Modal Promocional</h4>
+                    <div class="admin-flex-col-gap">
                         <div>
-                            <span class="text-teal" style="font-size: 0.85rem;">Imagen Promocional</span>
-                            <input type="file" id="promo-image-upload" accept="image/*" class="search-bar w-full mt-xs" style="padding: 0.8rem;" onchange="handlePromoImageSelect(event)">
-                            <div id="promo-preview-container" class="mt-md" style="display:none; text-align: center;">
-                                <img id="promo-image-preview" src="" style="max-height: 200px; object-fit: contain; border-radius: 12px; border: 1px solid var(--glass-border);">
+                            <span class="text-teal admin-label-sm">Imagen Promocional</span>
+                            <input type="file" id="promo-image-upload" accept="image/*" class="search-bar w-full mt-xs admin-promo-image-input" onchange="handlePromoImageSelect(event)">
+                            <div id="promo-preview-container" class="mt-md admin-promo-preview">
+                                <img id="promo-image-preview" src="" class="admin-promo-preview-img">
                             </div>
                         </div>
                         <div>
-                            <span class="text-teal" style="font-size: 0.85rem;">Fecha y Hora de Expiración</span>
+                            <span class="text-teal admin-label-sm">Fecha y Hora de Expiración</span>
                             <input type="datetime-local" id="promo-expiration" class="search-bar w-full mt-xs">
                         </div>
                         <div>
-                            <span class="text-teal" style="font-size: 0.85rem;">Enlace (Opcional)</span>
+                            <span class="text-teal admin-label-sm">Enlace (Opcional)</span>
                             <input type="url" id="promo-link" class="search-bar w-full mt-xs" placeholder="https://ejemplo.com">
                         </div>
-                        <div class="flex-align-center gap-md" style="margin-top: 0.5rem;">
+                        <div class="flex-align-center gap-md admin-promo-actions">
                             <button id="btn-save-promo" class="btn-primary flex-1" onclick="savePromoData()">
-                                <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">save</span>
+                                <span class="material-icons admin-promo-btn-icon">save</span>
                                 Guardar Promoción
                             </button>
                             <button id="btn-delete-promo" class="btn-signin btn-error" onclick="deleteCurrentPromo()" style="display: none;">
@@ -895,9 +891,10 @@
                 </div>
             </details>
 
-            <div class="flex-between my-xl" style="margin-bottom: 1rem;">
+            <!-- [ADMIN: BINANCE] -->
+            <div class="flex-between my-xl binance-header">
                 <h3 class="mb-0">Monitores de Referencia (Binance P2P)</h3>
-                <button class="btn-signin flex-align-center gap-sm p-sm" style="font-size: 0.8rem;"
+                <button class="btn-signin flex-align-center gap-sm p-sm binance-refresh-btn"
                     onclick="initBinanceMonitor()">
                     <span id="sync-icon">🔄</span> Actualizar Ahora
                 </button>
@@ -906,97 +903,92 @@
                 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/cl.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / CLP (Compra)</div>
+                        <img src="https://flagcdn.com/w20/cl.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / CLP (Compra)</div>
                     </div>
-                    <div id="binance-price-clp" class="font-black text-teal" style="font-size: 1.5rem;">
+                    <div id="binance-price-clp" class="font-black text-teal binance-price">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 50.000 |
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 50.000 |
                             Mercaderes</small>
-                        <small id="binance-time-clp" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-clp" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/co.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / COP (Venta)</div>
+                        <img src="https://flagcdn.com/w20/co.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / COP (Venta)</div>
                     </div>
-                    <div id="binance-price-cop" class="font-black text-gold" style="font-size: 1.5rem;">
+                    <div id="binance-price-cop" class="font-black text-gold binance-price">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 60.000 |
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 60.000 |
                             Bancolombia, Nequi</small>
-                        <small id="binance-time-cop" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-cop" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/pe.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / PEN (Venta)</div>
+                        <img src="https://flagcdn.com/w20/pe.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / PEN (Venta)</div>
                     </div>
-                    <div id="binance-price-pen" class="font-black text-error" style="font-size: 1.5rem;">
+                    <div id="binance-price-pen" class="font-black text-error binance-price">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 70 | BCP,
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 70 | BCP,
                             Yape</small>
-                        <small id="binance-time-pen" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-pen" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/ve.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / VES (Venta)</div>
+                        <img src="https://flagcdn.com/w20/ve.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / VES (Venta)</div>
                     </div>
-                    <div id="binance-price-ves" class="font-black text-gold" style="font-size: 1.5rem;">
+                    <div id="binance-price-ves" class="font-black text-gold binance-price">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 20.000 |
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 20.000 |
                             Provincial, P. Móvil</small>
-                        <small id="binance-time-ves" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-ves" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/us.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / USD (Zelle)</div>
+                        <img src="https://flagcdn.com/w20/us.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / USD (Zelle)</div>
                     </div>
-                    <div id="binance-price-usd" class="font-black text-success" style="font-size: 1.5rem;">
+                    <div id="binance-price-usd" class="font-black text-success binance-price">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 100 |
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 100 |
                             Zelle</small>
-                        <small id="binance-time-usd" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-usd" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
 
                 <div class="glass p-md flex-col gap-md">
                     <div class="flex-align-center gap-md">
-                        <img src="https://flagcdn.com/w20/ec.png" style="height: 16px;">
-                        <div class="font-bold text-white" style="font-size: 0.9rem;">USDT / USD (ECU)</div>
+                        <img src="https://flagcdn.com/w20/ec.png" class="binance-flag">
+                        <div class="font-bold text-white binance-currency-label">USDT / USD (ECU)</div>
                     </div>
-                    <div id="binance-price-ecs" class="font-black" style="font-size: 1.5rem; color: #60a5fa;">
+                    <div id="binance-price-ecs" class="font-black binance-price binance-price-ecs">
                         Cargando...</div>
-                    <div style="line-height: 1.2;">
-                        <small class="text-muted" style="font-size: 0.7rem; display: block;">Monto: 20 |
+                    <div class="binance-meta">
+                        <small class="text-muted binance-meta-text">Monto: 20 |
                             Pichincha, Guayaquil</small>
-                        <small id="binance-time-ecs" class="text-teal"
-                            style="font-size: 0.65rem;">Actualizando...</small>
+                        <small id="binance-time-ecs" class="text-teal binance-time">Actualizando...</small>
                     </div>
                 </div>
             </div>
 
         </section>
 
+        <!-- ============================================================ [FOOTER] ============================================================ -->
         <footer class="main-footer">
             <div class="footer-content">
                 <div class="footer-hours">
@@ -1024,7 +1016,7 @@
                             <span class="time">10:00 AM - 04:00 PM</span>
                         </div>
                     </div>
-                    <p style="margin-top: 1rem; font-style: italic; font-size: 0.7rem;">
+                    <p class="footer-note">
                         * Si realiza una transferencia fuera del horario de atención, el pago será procesado en el
                         siguiente bloque de horario laboral.
                     </p>
@@ -1036,7 +1028,7 @@
                         60 minutos dentro del horario laboral.
                         Este tiempo puede variar sujeto a verificaciones bancarias y demanda del servicio.
                     </p>
-                    <p style="margin-top: 0.5rem;">
+                    <p class="footer-legal-gap">
                         <strong>Responsabilidad:</strong> Enmsell no se hace responsable por errores en los datos
                         (Cuentas, RUT, Bancos)
                         suministrados por el usuario. Es responsabilidad exclusiva del cliente verificar la exactitud de
@@ -1050,74 +1042,72 @@
         </footer>
     </main>
 
-    <div id="promo-modal" class="modal-overlay" style="display:none; z-index: 10000; background: rgba(0,0,0,0.85);">
-        <div style="position: relative; max-width: 90vw; max-height: 90vh; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-            <button onclick="closePromoModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">
+    <!-- ============================================================ [MODAL: PROMO] ============================================================ -->
+    <div id="promo-modal" class="modal-overlay promo-modal-overlay" style="display:none;">
+        <div class="promo-modal-box">
+            <button onclick="closePromoModal()" class="promo-modal-close">
                 <span class="material-icons">close</span>
             </button>
-            <a id="promo-modal-link" href="#" target="_blank" style="display: block; pointer-events: none;">
-                <img id="promo-modal-image" src="" alt="Promoción Especial" style="display: block; max-width: 100%; max-height: 90vh; object-fit: contain; width: auto; height: auto;">
+            <a id="promo-modal-link" href="#" target="_blank" class="promo-modal-link">
+                <img id="promo-modal-image" src="" alt="Promoción Especial" class="promo-modal-img">
             </a>
         </div>
     </div>
 
+    <!-- ============================================================ [MODAL: REJECT] ============================================================ -->
     <div id="reject-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass">
             <h2 class="text-error">Rechazar Transacción</h2>
             <p>Indica el motivo del rechazo para informar al usuario:</p>
-            <textarea id="reject-reason" class="search-bar w-full p-md"
-                style="height: 100px; margin: 1.5rem 0 1rem 0; border-radius: 12px;"
+            <textarea id="reject-reason" class="search-bar w-full p-md reject-textarea"
                 placeholder="Ej: Fondos insuficientes, datos incorrectos..."></textarea>
 
             <div class="recipient-form text-left mb-lg">
-                <p class="text-muted mb-sm" style="font-size: 0.8rem;"><span class="material-icons"
-                        style="font-size: 14px; vertical-align: middle;">image</span> Adjuntar
+                <p class="text-muted mb-sm reject-proof-label"><span class="material-icons reject-proof-label-icon">image</span> Adjuntar
                     imagen probatoria (Opcional):</p>
-                <input type="file" id="reject-proof-upload" accept="image/*" class="search-bar w-full"
-                    style="padding: 0.8rem;" onchange="handleRejectProofSelect(event)">
-                <div id="reject-proof-preview-container" class="mt-md" style="display:none;">
-                    <img id="reject-proof-preview" src="" class="w-full"
-                        style="max-height: 200px; object-fit: contain; border-radius: 12px; border: 1px solid var(--glass-border);">
+                <input type="file" id="reject-proof-upload" accept="image/*" class="search-bar w-full reject-proof-input"
+                    onchange="handleRejectProofSelect(event)">
+                <div id="reject-proof-preview-container" class="mt-md reject-proof-preview">
+                    <img id="reject-proof-preview" src="" class="w-full reject-proof-img">
                 </div>
             </div>
 
             <div class="flex-align-center gap-lg">
-                <button class="btn-primary" style="background: var(--error);" onclick="confirmRejection()">Confirmar
+                <button class="btn-primary btn-reject-confirm" onclick="confirmRejection()">Confirmar
                     Rechazo</button>
-                <button class="btn-signin flex-1" style="border-color: var(--text-muted); color: var(--text-muted);"
+                <button class="btn-signin flex-1 btn-cancel-muted"
                     onclick="closeRejectModal()">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- ============================================================ [MODAL: CONFIRM] ============================================================ -->
     <div id="confirm-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass">
             <h2>Autorizar Transacción</h2>
             <p class="mb-md">Sube el comprobante de pago realizado por Enmsell para completar esta orden:</p>
-            <div class="recipient-form" style="text-align: left; margin: 1.5rem 0;">
-                <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Mensaje para el cliente (Opcional):</p>
-                <textarea id="admin-message" class="search-bar w-full p-md mb-md"
-                    style="height: 80px; border-radius: 12px;"
+            <div class="recipient-form confirm-form-wrap">
+                <p class="confirm-message-label">Mensaje para el cliente (Opcional):</p>
+                <textarea id="admin-message" class="search-bar w-full p-md mb-md confirm-message-textarea"
                     placeholder="Ej: Pago realizado con éxito desde Banco Edwards."></textarea>
-                <input type="file" id="admin-proof-upload" accept="image/*" class="search-bar w-full"
-                    style="padding: 0.8rem;" onchange="handleAdminProofSelect(event)">
-                <div id="admin-proof-preview-container" class="mt-md" style="display:none;">
-                    <img id="admin-proof-preview" src="" class="w-full"
-                        style="max-height: 200px; object-fit: contain; border-radius: 12px; border: 1px solid var(--glass-border);">
+                <input type="file" id="admin-proof-upload" accept="image/*" class="search-bar w-full confirm-proof-input"
+                    onchange="handleAdminProofSelect(event)">
+                <div id="admin-proof-preview-container" class="mt-md confirm-proof-preview">
+                    <img id="admin-proof-preview" src="" class="w-full confirm-proof-img">
                 </div>
             </div>
             <div class="flex-align-center gap-lg">
                 <button class="btn-primary" onclick="confirmAuthorization(this)">Completar Autorización</button>
-                <button class="btn-signin flex-1" style="border-color: var(--text-muted); color: var(--text-muted);"
+                <button class="btn-signin flex-1 btn-cancel-muted"
                     onclick="closeConfirmModal()">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <!-- ============================================================ [MODAL: LOGIN] ============================================================ -->
     <div id="login-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content glass text-center" style="max-height: 90vh; overflow-y: auto;">
-            <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo" class="logo-hero-img mb-md"
-                style="width: 100px; height: 100px;">
+        <div class="modal-content glass text-center login-modal-content">
+            <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo" class="logo-hero-img mb-md login-logo-img">
             <h2 class="text-gradient-gold font-black">Bienvenido a Enmsell Global</h2>
             <p class="login-tagline-gold">Inicia sesión para transferir con seguridad y elegancia</p>
 
@@ -1127,17 +1117,16 @@
                     Continuar con Google
                 </button>
 
-                <div style="display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0;">
-                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
-                    <span style="color: var(--text-muted); font-size: 0.8rem; white-space: nowrap;">o con
+                <div class="login-divider">
+                    <div class="login-divider-line"></div>
+                    <span class="login-divider-text">o con
                         teléfono</span>
-                    <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.1);"></div>
+                    <div class="login-divider-line"></div>
                 </div>
 
                 <div id="phone-login-section">
-                    <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem;">
-                        <select id="phone-country-select" class="premium-select"
-                            style="flex: 0 0 140px; font-size: 0.85rem; padding: 0.7rem 0.5rem; border-color: var(--gold); background-image: none;">
+                    <div class="login-phone-row">
+                        <select id="phone-country-select" class="premium-select login-phone-select">
                             <option value="+56">🇨🇱 Chile +56</option>
                             <option value="+58">🇻🇪 Venezuela +58</option>
                             <option value="+57">🇨🇴 Colombia +57</option>
@@ -1145,46 +1134,43 @@
                             <option value="+1-US">🇺🇸 USA +1</option>
                             <option value="+593">🇪🇨 Ecuador +593</option>
                         </select>
-                        <input type="tel" id="phone-login-input" class="premium-input" placeholder="Ej: 912345678"
-                            style="flex: 1; margin-top: 0; border-color: var(--gold);"
+                        <input type="tel" id="phone-login-input" class="premium-input login-phone-input" placeholder="Ej: 912345678"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
-                    <button id="btn-send-sms" class="btn-primary" onclick="handlePhoneSendCode()"
-                        style="padding: 0.8rem; font-size: 0.95rem; background: linear-gradient(135deg, var(--gold), #b8860b);">
-                        <span class="material-icons"
-                            style="font-size: 16px; vertical-align: middle; margin-right: 4px;">sms</span>
+                    <button id="btn-send-sms" class="btn-primary login-sms-btn" onclick="handlePhoneSendCode()">
+                        <span class="material-icons login-sms-icon">sms</span>
                         Enviar Código SMS
                     </button>
                 </div>
 
-                <div id="phone-otp-section" style="display: none; margin-top: 1rem;">
-                    <p style="color: var(--gold); font-size: 0.85rem; margin-bottom: 0.8rem;">Ingresa el código de 6
+                <div id="phone-otp-section" class="login-otp-section">
+                    <p class="login-otp-hint">Ingresa el código de 6
                         dígitos enviado a tu teléfono:</p>
-                    <input type="text" id="phone-otp-input" class="premium-input" placeholder="123456" maxlength="6"
-                        style="text-align: center; font-size: 1.4rem; letter-spacing: 8px; font-weight: 800; border-color: var(--gold); margin-bottom: 0.8rem;"
+                    <input type="text" id="phone-otp-input" class="premium-input login-otp-input" placeholder="123456" maxlength="6"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                    <button class="btn-primary" onclick="handlePhoneVerifyCode()"
-                        style="padding: 0.8rem; font-size: 0.95rem; background: linear-gradient(135deg, var(--gold), #b8860b);">
+                    <button class="btn-primary login-verify-btn" onclick="handlePhoneVerifyCode()">
                         Verificar Código
                     </button>
                 </div>
 
                 <div id="recaptcha-container"></div>
             </div>
-            <button class="btn-signin w-full mt-lg" style="border-color: var(--text-muted); color: var(--text-muted);"
+            <button class="btn-signin w-full mt-lg btn-cancel-muted"
                 onclick="closeLogin()">Cancelar</button>
         </div>
     </div>
 
+    <!-- ============================================================ [MODAL: COUNTRY] ============================================================ -->
     <div id="country-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content glass" style="max-height: 80vh; overflow-y: auto;">
+        <div class="modal-content glass country-modal-content">
             <h3>Seleccionar País</h3>
-            <div id="country-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+            <div id="country-list" class="country-modal-list">
                 
             </div>
         </div>
     </div>
 
+    <!-- ============================================================ [MOBILE NAV] ============================================================ -->
     <div class="mobile-nav">
         <div class="mobile-nav-item active" onclick="showView('home')" id="mob-home">
             <span class="material-icons">home</span>
@@ -1198,14 +1184,12 @@
             <span class="material-icons">history</span>
             <span>Historial</span>
         </div>
-        <div class="mobile-nav-item" onclick="showView('admin')" id="mob-admin"
-            style="display:none; color:var(--gold);">
+        <div class="mobile-nav-item mob-admin-item" onclick="showView('admin')" id="mob-admin">
             <span class="material-icons">admin_panel_settings</span>
-            <span style="font-weight: 800;">ADMIN</span>
+            <span class="mob-admin-label">ADMIN</span>
         </div>
         <div class="mobile-nav-item">
-            <a href="https://wa.me/56950628724" target="_blank"
-                style="text-decoration:none; color:inherit; display:flex; flex-direction:column; align-items:center;">
+            <a href="https://wa.me/56950628724" target="_blank" class="mob-support-link">
                 <span class="material-icons">support_agent</span>
                 <span>Soporte</span>
             </a>
@@ -1223,27 +1207,28 @@
         </svg>
     </a>
 
+    <!-- ============================================================ [MODAL: USER-HISTORY] ============================================================ -->
     <div id="user-history-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content glass" style="max-width: 800px; max-height: 85vh; overflow-y: auto;">
-            <h2 style="color:var(--gold); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
+        <div class="modal-content glass user-history-modal-content">
+            <h2 class="user-history-title">
                 Historial de Usuario:<br>
-                <span id="user-history-email" style="color:white; font-size: 1.1rem; font-family: monospace;"></span>
+                <span id="user-history-email" class="user-history-email-span"></span>
             </h2>
-            <div id="user-history-list" class="transactions-list" style="margin-top: 1rem;">
+            <div id="user-history-list" class="transactions-list user-history-list-wrap">
                 
             </div>
-            <div style="margin-top: 1.5rem; text-align: right;">
+            <div class="user-history-close-row">
                 <button class="btn-primary" onclick="closeUserHistoryModal()">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <div id="logout-modal" class="modal-overlay"
-        style="display: none; z-index: 9999; background: rgba(0,0,0,0.8); justify-content: center; align-items: center;">
-        <div class="glass modal-content text-center p-xl" style="max-width: 400px;">
-            <div class="flex-center mb-lg"
-                style="background: rgba(16, 185, 129, 0.1); width: 60px; height: 60px; border-radius: 50%; margin-left: auto; margin-right: auto;">
-                <span class="material-icons text-success" style="font-size: 32px;">check_circle</span>
+    <!-- ============================================================ [MODAL: LOGOUT] ============================================================ -->
+    <div id="logout-modal" class="modal-overlay logout-modal-overlay"
+        style="display: none;">
+        <div class="glass modal-content text-center p-xl logout-modal-inner">
+            <div class="flex-center mb-lg logout-icon-circle">
+                <span class="material-icons text-success logout-icon">check_circle</span>
             </div>
             <h2 class="text-white mb-md">Sesión Cerrada</h2>
             <p class="text-muted mb-xl">Su sesión ha sido cerrada con éxito.</p>
@@ -1251,6 +1236,7 @@
         </div>
     </div>
 
+    <!-- ============================================================ [SCRIPTS] ============================================================ -->
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -1259,15 +1245,16 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
-    <script defer src="js/api.js?v=10.1"></script>
-    <script defer src="js/auth.js?v=10.1"></script>
-    <script defer src="js/app.js?v=10.1"></script>
-    <script defer src="js/calculator.js?v=10.1"></script>
-    <script defer src="js/transactions.js?v=10.1"></script>
-    <script defer src="js/beneficiaries.js?v=10.1"></script>
-    <script defer src="js/ui.js?v=10.1"></script>
-    <script defer src="js/tracking.js?v=10.1"></script>
-    <script defer src="js/admin.js?v=10.1"></script>
+    <script src="js/config.js"></script><!-- ← Constantes globales: cargar primero, sin defer -->
+    <script defer src="js/api.js?v=10.2"></script>
+    <script defer src="js/auth.js?v=10.2"></script>
+    <script defer src="js/app.js?v=10.2"></script>
+    <script defer src="js/calculator.js?v=10.2"></script>
+    <script defer src="js/transactions.js?v=10.2"></script>
+    <script defer src="js/beneficiaries.js?v=10.2"></script>
+    <script defer src="js/ui.js?v=10.3"></script>
+    <script defer src="js/tracking.js?v=10.2"></script>
+
 </body>
 
 </html>

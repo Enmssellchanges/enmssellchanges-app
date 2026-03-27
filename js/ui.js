@@ -1,8 +1,34 @@
+/**
+ * @file ui.js
+ * @description Funciones de interfaz de usuario y experiencia.
+ *   - Navegación entre vistas (showView) con control de acceso
+ *   - Selectores de tipo de cuenta (VES, COP, PEN, USA Zelle)
+ *   - Renderizado de cuentas bancarias del servicio
+ *   - Utilidades de copia al portapapeles
+ *   - Notificaciones push en primer plano (toast + sonido)
+ *   - Sistema de temas (claro, oscuro, moderno)
+ *   - Modal promocional
+ */
+
+// ── Utilidades de país ────────────────────────────────────────────────────────
+
+/**
+ * Devuelve la etiqueta de texto de un país dado su objeto de configuración.
+ *
+ * @param {{ name?: string, code?: string }} country - Objeto país de `AppConfig.countries`.
+ * @returns {string} Nombre legible o código de moneda del país.
+ */
 function getCountryLabel(country) {
   if (!country) return '';
   return country.name || countryNameMap[country.code] || country.code;
 }
 
+// ── Indicador de conexión ──────────────────────────────────────────────────────────
+
+/**
+ * Actualiza el chip de estado de conexión en la barra de navegación.
+ * Lee `navigator.onLine` para decidir si mostrar "Cloud Live" u "Offline".
+ */
 function updateConnectionStatus() {
   const statusText = document.getElementById('status-text');
   const statusIcon = document.querySelector('#connection-status .material-icons');
@@ -23,6 +49,15 @@ function updateConnectionStatus() {
   }
 }
 
+// ── Navegación entre vistas ──────────────────────────────────────────────────────────
+
+/**
+ * Muestra una vista y oculta las demás. Realiza comprobación de autenticación
+ * para vistas sensibles (send, history, admin, profile) y carga los datos
+ * correspondientes a cada pantalla.
+ *
+ * @param {'home'|'send'|'history'|'tracking'|'admin'|'profile'} view - Nombre de la vista destino.
+ */
 function showView(view) {
   // Auth Check for sensitive views
   const sensitiveViews = ['send', 'history', 'admin', 'profile'];
@@ -70,6 +105,14 @@ function showView(view) {
   });
 }
 
+// ── Selectores de tipo de cuenta ───────────────────────────────────────────────────────
+
+/**
+ * Actualiza los estilos de los botones de tipo VES y adapta el label/maxLength
+ * del campo de cuenta según si es Pago Móvil o Transferencia Bancaria.
+ *
+ * @param {'mobile'|'transfer'} type - Tipo de cuenta venezolana seleccionada.
+ */
 function selectVesType(type) {
   // Update hidden input value
   const typeInput = document.getElementById('ves-type');
@@ -115,6 +158,10 @@ function selectVesType(type) {
   }
 }
 
+/**
+ * Adapta el campo de cuenta colombiana según si el banco elegido es Nequi o Bancolombia.
+ * Cambia label, placeholder y maxLength del input.
+ */
 function toggleCopType() {
   const bank = document.getElementById('cop-bank').value;
   const accountLabel = document.getElementById('cop-account-label');
@@ -131,6 +178,10 @@ function toggleCopType() {
   }
 }
 
+/**
+ * Adapta los campos de cuenta peruana según el método elegido (Banco, Yape, Plin).
+ * Muestra/oculta el selector de banco y cambia el label del número.
+ */
 function togglePenType() {
   const method = document.getElementById('pen-method').value;
   const bankContainer = document.getElementById('pen-bank-container');
@@ -148,6 +199,10 @@ function togglePenType() {
   }
 }
 
+/**
+ * Adapta el campo Zelle según si se introduce teléfono o correo electrónico.
+ * Limpia el valor actual al cambiar de tipo para evitar datos inconsistentes.
+ */
 function toggleUsaType() {
   const type = document.getElementById('usa-zelle-type').value;
   const label = document.getElementById('usa-zelle-label');
@@ -163,6 +218,11 @@ function toggleUsaType() {
   }
 }
 
+/**
+ * Filtra el input de Zelle para permitir sólo dígitos cuando el tipo es `phone`.
+ *
+ * @param {HTMLInputElement} input - El elemento input que dispara el evento.
+ */
 function handleUsaZelleInput(input) {
   const type = document.getElementById('usa-zelle-type').value;
   if (type === 'phone') {
@@ -170,6 +230,13 @@ function handleUsaZelleInput(input) {
   }
 }
 
+// ── Flujo de nuevo pago ────────────────────────────────────────────────────────────────
+
+/**
+ * Valida el monto mínimo del widget Home y redirige al formulario de envío (vista Send)
+ * sincronizando los países y el monto previamente ingresados.
+ * Requiere que el usuario esté autenticado.
+ */
 function startNewPayment() {
   if (!user) {
     alert("Para realizar un envío debes iniciar sesión.");
@@ -208,6 +275,13 @@ function startNewPayment() {
   showView('send');
 }
 
+// ── Cuentas bancarias del servicio ──────────────────────────────────────────────────────────
+
+/**
+ * Suscribe en tiempo real la lista de cuentas bancarias desde Firestore
+ * y las renderiza como tarjetas dentro de la vista Send.
+ * Utiliza `onSnapshot` para actualizar automáticamente si el admin edita los datos.
+ */
 function renderUserAccounts() {
   const list = document.getElementById('user-accounts-list');
   if (!list) return;
@@ -254,6 +328,17 @@ function renderUserAccounts() {
   }
 }
 
+/**
+ * Copia todos los datos de una cuenta bancaria al portapapeles y
+ * muestra un feedback visual en el botón durante 2 segundos.
+ *
+ * @param {string} bank   - Nombre del banco.
+ * @param {string} name   - Nombre del titular.
+ * @param {string} id     - Cédula o RUT del titular.
+ * @param {string} number - Número de cuenta.
+ * @param {string} type   - Tipo de cuenta (Ahorro, Corriente, etc.).
+ * @param {string} email  - Correo electrónico del titular.
+ */
 function copyAccountData(bank, name, id, number, type, email) {
   const textToCopy = `Banco: ${bank}
 Titular: ${name}
@@ -277,6 +362,12 @@ Email: ${email}`;
   });
 }
 
+/**
+ * Muestra u oculta la previsualización del logo bancario en los formularios de
+ * cuentas del usuario (vista Send) según el banco seleccionado.
+ *
+ * @param {string} prefix - Prefijo del elemento DOM del formulario (ej: 'clp', 'cop').
+ */
 function updateTransferLogo(prefix) {
   const select = document.getElementById(`${prefix}-bank`);
   const container = document.getElementById(`${prefix}-logo-preview`);
@@ -291,6 +382,14 @@ function updateTransferLogo(prefix) {
   container.style.display = 'flex';
 }
 
+/**
+ * Devuelve la URL del logo de un banco por su nombre.
+ * Incluye logos locales para Santander y Banco Estado.
+ * Para el resto usa el servicio de favicons de Google.
+ *
+ * @param {string} bankName - Nombre del banco (case-insensitive).
+ * @returns {string} URL absoluta del logo o icono genérico de banco.
+ */
 function getBankLogo(bankName) {
   const name = bankName.toLowerCase();
 
@@ -339,7 +438,7 @@ async function requestNotificationPermission() {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       const token = await messaging.getToken({
-        vapidKey: 'BF6tguCyIgYzrLj8Muw4y_W556OyGFn6p4GCmlTcxnrp4HUneKPBj10gXPn__jS9UcsT7Jwrpi6c1L2B0V3w6Spg'
+        vapidKey: APP_CONSTANTS.FCM_VAPID_KEY
       });
       if (token && user) {
         await db.collection('users').doc(user.uid).set({
@@ -437,6 +536,14 @@ function copyToClipboard(text, btn) {
   });
 }
 
+/**
+ * Construye y devuelve el HTML de una tarjeta de datos de cuenta destino,
+ * con campos copiables individualmente y un botón de "COPIAR TODO".
+ *
+ * @param {Object}  data              - Datos de la cuenta destino del usuario.
+ * @param {boolean} [isHistory=false] - Si true, usa una tipografía más pequeña (vista historial).
+ * @returns {string} HTML listo para insertar en el DOM.
+ */
 function renderAccountData(data, isHistory = false) {
   const fields = [{
     label: 'Nombre',

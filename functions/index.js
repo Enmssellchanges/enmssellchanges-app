@@ -139,10 +139,6 @@ exports.autoUpdateRates = onSchedule(
             return;
         }
 
-        console.log('[autoUpdateRates] Binance prices:', binancePrices);
-        console.log('[autoUpdateRates] Yadio monitor:', yadioVal);
-        console.log('[autoUpdateRates] adminFactor:', adminFactor);
-
         // 3. Calculate new rates (same formula as autoUpdateRatesFromMonitors in admin.js)
         let hasChanges = false;
         const updatedCountries = countries.map(c => {
@@ -293,7 +289,7 @@ exports.sendPromoNotification = onCall(
         });
 
         if (tokens.length === 0) {
-            return { sent: 0, message: 'No hay tokens válidos.' };
+            return { sent: 0, total: 0, message: 'No hay tokens válidos.' };
         }
 
         const message = {

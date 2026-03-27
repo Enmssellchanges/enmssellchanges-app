@@ -67,3 +67,16 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Android signing — archivos sensibles (NO subir al repositorio)
+*.keystore
+*.jks
+*.pem
+*.p12
+
+# Gradle build cache
+.gradle/
+
+# Imágenes locales no versionadas
+logo-enmssell.png
+store_icon.png

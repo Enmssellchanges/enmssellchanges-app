@@ -3,14 +3,19 @@
  * Llama a la Cloud Function 'sendTelegramAdmin' para mantener las credenciales seguras.
  * @param {Object} tx - Datos de la transacción (sender, name, amount, note, id).
  */
+// Fetch Event (Network First for real-time updates)
 function sendTelegramAdmin(tx) {
-    if (!firebase || !firebase.functions) {
-        console.warn('Firebase Functions no está disponible.');
-        return;
-    }
-    const sendTelegramFn = firebase.functions().httpsCallable('sendTelegramAdmin');
-    sendTelegramFn(tx)
-        .catch(err => console.error("Error llamando a sendTelegramAdmin:", err));
+    const fnUrl = 'https://us-central1-enmssellchanges-premium.cloudfunctions.net/sendTelegramAdmin';
+    fetch(fnUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: tx })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error) console.error("Error desde cloud function:", data.error);
+    })
+    .catch(err => console.error("Error llamando a sendTelegramAdmin:", err));
 }
 
 /**

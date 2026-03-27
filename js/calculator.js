@@ -1,6 +1,16 @@
-// Default to VES
+/**
+ * @file calculator.js
+ * @description Lógica de cálculo de montos y tasas de cambio.
+ *   - Debouncing para evitar cálculos en cada pulsación de tecla
+ *   - Cálculo normal (send / receive) para el widget home y el formulario de envío
+ *   - Cálculo inverso (reverse) cuando el usuario edita el campo destino
+ *   - Cálculo de equivalencia BCV y Monitor para Venezuela
+ *   - Renderizado de tarjetas de tasas en la vista Home
+ *   - Selector de país (modal)
+ */
 
-// --- LÓGICA DE CÁLCULO Y RENDERIZADO ---
+// ── Debouncers ───────────────────────────────────────────────────────────────
+// Prevé cálculos redundantes mientras el usuario escribe.
 // Prevents the UI from recalculating on every single keystroke.
 let calcTimeout = null;
 
@@ -54,7 +64,14 @@ window.debouncedCalculateMonitorQuick = function () {
   }, 300);
 };
 
-// Quick Logic Home
+// ── Cálculos ─────────────────────────────────────────────────────────────────
+
+/**
+ * Calcula el monto a recibir (o a enviar) en el widget rápido de la página Home.
+ * Actualiza la etiqueta de mínimo, el estado del botón y el equivalente BCV/Monitor.
+ *
+ * @param {boolean} [reverse=false] - Si true, calcula el monto de origen a partir del destino.
+ */
 function calculateQuick(reverse = false) {
   const sendInput = document.getElementById('quick-send-amount');
   const receiveInput = document.getElementById('quick-receive-amount');
@@ -143,9 +160,13 @@ function calculateQuick(reverse = false) {
   }
 }
 
-// Logic Send Tab
-
-// Logic Send Tab
+/**
+ * Calcula el monto a recibir (o a enviar) en el formulario de envío (vista Send).
+ * También gestiona la visibilidad de los campos específicos por país destino
+ * (VES, COP, PEN, USD, ECS, CLP) y el equivalente BCV/Monitor.
+ *
+ * @param {boolean} [reverse=false] - Si true, calcula el monto de origen a partir del destino.
+ */
 function calculate(reverse = false) {
   const sendInput = document.getElementById('send-amount');
   const receiveInput = document.getElementById('receive-amount');
@@ -279,6 +300,10 @@ function calculate(reverse = false) {
   }
 }
 
+/**
+ * Actualiza el campo de monto de VES según el valor en USD (BCV) en el widget Home.
+ * Llama a `calculateQuick` para recalcular el monto CLP resultante.
+ */
 function calculateBCVQuick() {
   const bcvDisp = document.getElementById('bcv-rate-display');
   const quickVesBcvInfo = document.getElementById('quick-ves-bcv-info');
@@ -298,6 +323,10 @@ function calculateBCVQuick() {
   }
 }
 
+/**
+ * Actualiza el campo de monto de VES según el valor en USD (BCV) en el formulario de envío.
+ * Llama a `calculate` para recalcular el monto CLP resultante.
+ */
 function calculateBCVSend() {
   const usdInput = document.getElementById('ves-usd-input');
   const sendInput = document.getElementById('send-amount');
@@ -314,6 +343,10 @@ function calculateBCVSend() {
   }
 }
 
+/**
+ * Actualiza el monto de VES según el valor en USD (Dólar Paralelo) en el widget Home.
+ * Llama a `calculateQuick` para recalcular el monto CLP resultante.
+ */
 function calculateMonitorQuick() {
   const monitorDisp = document.getElementById('monitor-rate-display');
   const quickVesMonitorInput = document.getElementById('quick-ves-monitor-input');
@@ -332,6 +365,10 @@ function calculateMonitorQuick() {
   }
 }
 
+/**
+ * Actualiza el monto de VES según el valor en USD (Dólar Paralelo) en el formulario de envío.
+ * Llama a `calculate` para recalcular el monto CLP resultante.
+ */
 function calculateMonitorSend() {
   const usdInput = document.getElementById('ves-monitor-usd-input');
   const sendInput = document.getElementById('send-amount');
@@ -348,6 +385,10 @@ function calculateMonitorSend() {
   }
 }
 
+/**
+ * Renderiza las tarjetas de tasas del día en la cuadrícula de la vista Home.
+ * Lee los países desde `AppConfig.countries` (excluyendo CLP).
+ */
 function renderHomeRates() {
   const grid = document.getElementById('home-rates-grid');
   if (!grid) return;
@@ -380,11 +421,17 @@ function renderHomeRates() {
     `).join('');
 }
 
+/**
+ * Actualiza el texto que muestra la tasa oficial BCV en el widget Home.
+ */
 function renderBCV() {
   const el = document.getElementById('bcv-rate-display');
   if (el) el.innerText = `${AppConfig.bcvRate} Bs / USD`;
 }
 
+/**
+ * Actualiza el texto que muestra la tasa del Dólar Paralelo (Monitor) en el widget Home.
+ */
 function renderMonitor() {
   const el = document.getElementById('monitor-rate-display');
   if (el) el.innerText = `${AppConfig.monitorRate} Bs / USD`;
@@ -392,6 +439,12 @@ function renderMonitor() {
 
 let activePicker = 'source';
 
+/**
+ * Abre el modal de selección de país filtrando las opciones disponibles
+ * según el picker que lo invocó (source, dest, quick-source, quick-dest).
+ *
+ * @param {'source'|'dest'|'quick-source'|'quick-dest'} pickerType - Identificador del selector activo.
+ */
 function toggleCountryList(pickerType) {
   activePicker = pickerType;
   const list = document.getElementById('country-list');
@@ -418,6 +471,12 @@ function toggleCountryList(pickerType) {
   document.getElementById('country-modal').style.display = 'flex';
 }
 
+/**
+ * Actualiza la bandera y el código de moneda en el selector visual de la UI.
+ *
+ * @param {string} prefix - Prefijo del elemento (ej: 'source', 'dest', 'quick-source', 'quick-dest').
+ * @param {Object} c - Objeto país con propiedades { flag, code, name }.
+ */
 function updateCountryUI(prefix, c) {
   const flag = document.getElementById(`${prefix}-flag`);
   const codeText = document.getElementById(`${prefix}-code`);
@@ -425,6 +484,12 @@ function updateCountryUI(prefix, c) {
   if (codeText) codeText.innerText = c.code;
 }
 
+/**
+ * Selecciona un país desde el modal y actualiza el estado y la UI del picker activo.
+ * Aplica reglas de restricción (VES solo puede ir a/desde CLP).
+ *
+ * @param {string} code - Código ISO de moneda del país seleccionado (ej: 'CLP', 'VES').
+ */
 function selectCountry(code) {
   const country = AppConfig.countries.find(c => c.code === code);
   if (!country) return;

@@ -1687,3 +1687,1299 @@ body.theme-light .btn-primary {
     animation: spin-rotate 0.8s linear infinite;
     display: inline-block;
 }
+
+.connection-status-pill {
+    margin-left: 10px;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: rgba(16, 185, 129, 0.1);
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* ================================================================
+   PASO 4 — Clases extraídas de estilos inline (index.html)
+   ================================================================ */
+
+/* ── NAV ── */
+.nav-status-icon {
+    font-size: 10px;
+}
+
+.nav-status-text {
+    letter-spacing: 0.5px;
+}
+
+.nav-link-support {
+    color: #25D366;
+}
+
+.nav-link-support .material-icons,
+.nav-link-theme .material-icons {
+    font-size: 18px;
+}
+
+.nav-link-theme {
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+/* ── HOME ── */
+.logo-hero-mb {
+    margin-bottom: 0.8rem;
+}
+
+.hero-layout {
+    align-items: flex-start;
+    width: 100%;
+}
+
+.hero-text-col {
+    flex: 1;
+    min-width: 300px;
+}
+
+.btn-hero-send {
+    padding: 1rem 2rem;
+}
+
+.rates-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.rates-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+.rates-update-time {
+    font-size: 0.75rem;
+    color: var(--gold);
+    margin-top: 0.1rem;
+    opacity: 0.9;
+}
+
+.widget-title {
+    margin-bottom: 1.5rem;
+}
+
+.min-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+/* ── CURRENCY INFO PANEL (BCV / Monitor) ── */
+.currency-panel {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.currency-panel-alt {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.currency-symbol-teal {
+    font-size: 1.1rem;
+}
+
+.currency-symbol-accent {
+    font-size: 1.1rem;
+    color: var(--accent-teal);
+}
+
+.currency-symbol-gold {
+    font-size: 1.1rem;
+    color: var(--accent);
+}
+
+.currency-formula {
+    font-size: 0.6rem;
+    margin-top: 0.2rem;
+}
+
+.currency-formula-mono {
+    font-size: 0.65rem;
+    margin-top: 0.3rem;
+    font-family: monospace;
+}
+
+.currency-label-accent {
+    color: var(--accent);
+}
+
+.rate-small-text {
+    font-size: 0.65rem;
+}
+
+.rate-tag-bcv {
+    font-size: 0.6rem;
+}
+
+.rate-tag-monitor {
+    font-size: 0.6rem;
+}
+
+/* ── BCV / Monitor containers ── */
+.bcv-container-panel {
+    padding: 0.5rem 1rem;
+    border-color: rgba(212, 175, 55, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+}
+
+.monitor-container-panel {
+    padding: 0.5rem 1rem;
+    border-color: rgba(94, 234, 212, 0.3);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+}
+
+.panel-logo {
+    height: 25px;
+    object-fit: contain;
+}
+
+.panel-logo-round {
+    height: 25px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.panel-text-left {
+    text-align: left;
+}
+
+.panel-label-sm {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+}
+
+.panel-rate-display {
+    font-size: 0.9rem;
+}
+
+/* ── SEND SECTION ── */
+.summary-label-sm {
+    font-size: 0.9rem;
+}
+
+.summary-expand-icon {
+    font-size: 1.2rem;
+}
+
+/* ── BENEFICIARIOS ── */
+.beneficiary-panel {
+    background: rgba(204, 163, 83, 0.05);
+    padding: 0.8rem;
+    border-radius: 12px;
+    border: 1px solid rgba(204, 163, 83, 0.2);
+    cursor: pointer;
+}
+
+.beneficiary-summary {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    outline: none;
+    list-style: none;
+}
+
+.beneficiary-summary-icon {
+    font-size: 18px;
+}
+
+.beneficiary-expand-icon {
+    margin-left: auto;
+    font-size: 18px;
+}
+
+.beneficiary-select-wrapper {
+    margin-top: 1rem;
+}
+
+/* ── CAMPOS VES / TIPO DE ENVÍO ── */
+.ves-type-selector {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+}
+
+.ves-type-btn-active {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 12px;
+    border: 2px solid var(--gold);
+    background: rgba(204, 163, 83, 0.15);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ves-type-btn-inactive {
+    flex: 1;
+    padding: 0.7rem;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ves-type-icon {
+    font-size: 18px;
+}
+
+/* ── CÉDULA VES ── */
+.ves-id-row {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.ves-id-prefix-select {
+    flex: 0 0 65px;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.3rem;
+    text-align: center;
+    font-weight: 700;
+    border-color: var(--gold);
+}
+
+.ves-id-input {
+    flex: 1;
+    margin-top: 0;
+}
+
+/* ── NOTA / COMPROBANTE ── */
+.tx-note-field {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+.proof-file-input {
+    width: 100%;
+}
+
+.proof-preview-wrap {
+    display: none;
+    margin-top: 1rem;
+    position: relative;
+}
+
+.proof-preview-img {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+/* ── GUARDAR BENEFICIARIO ── */
+.save-beneficiary-panel {
+    margin-bottom: 1.5rem;
+    background: rgba(204, 163, 83, 0.05);
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(204, 163, 83, 0.2);
+}
+
+.save-beneficiary-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.save-beneficiary-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--gold);
+}
+
+.save-beneficiary-text {
+    flex: 1;
+}
+
+/* ── ADMIN: CUENTAS ── */
+.admin-section-details {
+    margin-bottom: 2rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-section-summary {
+    font-size: 1.1rem;
+    color: var(--gold);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-section-expand {
+    font-size: 1.2rem;
+}
+
+.admin-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-input-full {
+    width: 100%;
+    margin-top: 0.3rem;
+}
+
+.admin-logo-img {
+    width: 20px;
+    height: 20px;
+}
+
+/* ── ADMIN: TASAS ── */
+.admin-rates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-rates-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--gold);
+}
+
+.btn-auto-calc {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-auto-calc .material-icons {
+    font-size: 16px;
+}
+
+.rates-tip-box {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--accent-teal);
+    border-radius: 4px;
+}
+
+.rates-tip-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ── ADMIN: PUSH / PROMO ── */
+.admin-panel-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    color: var(--gold);
+}
+
+.admin-panel-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.admin-label-sm {
+    font-size: 0.85rem;
+}
+
+.promo-textarea {
+    height: auto;
+    border-radius: 12px;
+}
+
+.btn-send-promo {
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    padding: 0.8rem;
+}
+
+.btn-send-promo .material-icons {
+    font-size: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.promo-result-box {
+    display: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+.promo-image-upload {
+    padding: 0.8rem;
+}
+
+.promo-preview-wrap {
+    display: none;
+    text-align: center;
+}
+
+.promo-preview-img {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+/* ── ADMIN: BINANCE ── */
+.binance-flag-img {
+    height: 16px;
+}
+
+.binance-monitor-label {
+    font-size: 0.9rem;
+}
+
+.binance-price {
+    font-size: 1.5rem;
+}
+
+.binance-detail-block {
+    line-height: 1.2;
+}
+
+.binance-detail-text {
+    font-size: 0.7rem;
+    display: block;
+}
+
+.binance-time-text {
+    font-size: 0.65rem;
+}
+
+.binance-ecs-price {
+    font-size: 1.5rem;
+    color: #60a5fa;
+}
+
+/* ── FOOTER ── */
+.footer-note {
+    margin-top: 1rem;
+    font-style: italic;
+    font-size: 0.7rem;
+}
+
+.footer-legal-p {
+    margin-top: 0.5rem;
+}
+
+/* ── MODAL: PROMO ── */
+.promo-modal-wrapper {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.promo-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.promo-modal-link {
+    display: block;
+    pointer-events: none;
+}
+
+.promo-modal-img {
+    display: block;
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+}
+
+/* ── MODAL: REJECT ── */
+.reject-textarea {
+    height: 100px;
+    margin: 1.5rem 0 1rem;
+    border-radius: 12px;
+}
+
+.reject-proof-label {
+    font-size: 0.8rem;
+}
+
+.reject-proof-icon {
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.reject-file-input {
+    padding: 0.8rem;
+}
+
+.reject-proof-preview {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.btn-reject-confirm {
+    background: var(--error);
+}
+
+.btn-cancel-muted {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+/* ── MODAL: CONFIRM ── */
+.confirm-form {
+    text-align: left;
+    margin: 1.5rem 0;
+}
+
+.confirm-msg-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.confirm-textarea {
+    height: 80px;
+    border-radius: 12px;
+}
+
+.confirm-file-input {
+    padding: 0.8rem;
+}
+
+.confirm-proof-preview {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+/* ── MODAL: LOGIN ── */
+.login-logo {
+    width: 100px;
+    height: 100px;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.2rem 0;
+}
+
+.login-divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.login-divider-text {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.phone-login-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.phone-country-select {
+    flex: 0 0 140px;
+    font-size: 0.85rem;
+    padding: 0.7rem 0.5rem;
+    border-color: var(--gold);
+    background-image: none;
+}
+
+.phone-input-login {
+    flex: 1;
+    margin-top: 0;
+    border-color: var(--gold);
+}
+
+.btn-sms {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+}
+
+.btn-sms .material-icons {
+    font-size: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.otp-section {
+    display: none;
+    margin-top: 1rem;
+}
+
+.otp-hint {
+    color: var(--gold);
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+}
+
+.otp-input {
+    text-align: center;
+    font-size: 1.4rem;
+    letter-spacing: 8px;
+    font-weight: 800;
+    border-color: var(--gold);
+    margin-bottom: 0.8rem;
+}
+
+.btn-verify {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+}
+
+.btn-cancel-login {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+/* ── MODAL: COUNTRY ── */
+.country-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* ── MODAL: USER-HISTORY ── */
+.user-history-title {
+    color: var(--gold);
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 0.5rem;
+}
+
+.user-history-email-span {
+    color: white;
+    font-size: 1.1rem;
+    font-family: monospace;
+}
+
+.user-history-list-wrap {
+    margin-top: 1rem;
+}
+
+.user-history-close-row {
+    margin-top: 1.5rem;
+    text-align: right;
+}
+
+/* ── MODAL: LOGOUT ── */
+.logout-modal-overlay {
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.logout-modal-inner {
+    max-width: 400px;
+}
+
+.logout-icon-circle {
+    background: rgba(16, 185, 129, 0.1);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.logout-icon {
+    font-size: 32px;
+}
+
+/* ── MOBILE NAV ADMIN ── */
+.mob-admin-item {
+    display: none;
+    color: var(--gold);
+}
+
+.mob-admin-label {
+    font-weight: 800;
+}
+
+/* ── MOBILE NAV SOPORTE ── */
+.mob-support-link {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ── PROFILE ── */
+.profile-email-display {
+    font-size: 0.9rem;
+}
+
+/* ── ADMIN SUMMARY CURSOR ── */
+.admin-summaries-cursor {
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+/* ── VES TYPE BUTTONS ── */
+.ves-type-btn-active,
+.ves-type-btn-inactive {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: inherit;
+    flex: 1;
+    transition: all 0.25s ease;
+}
+
+.ves-type-btn-active {
+    background: rgba(13, 127, 242, 0.2);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.ves-type-btn-inactive {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+.ves-type-btn-inactive:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: var(--text-main);
+}
+
+.ves-type-icon {
+    font-size: 1.4rem;
+}
+
+/* ── ADMIN DETAILS PANEL (sin clase) ── */
+.admin-details-panel {
+    margin-bottom: 2rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.admin-details-summary {
+    font-size: 1.1rem;
+    color: var(--gold);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-details-icon {
+    font-size: 1.2rem;
+}
+
+/* ── ADMIN ACCOUNTS GRID ── */
+.admin-accounts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-accounts-input {
+    width: 100%;
+    margin-top: 0.3rem;
+}
+
+/* ── ADMIN RATES ── */
+.admin-rates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-rates-title {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--gold);
+}
+
+.admin-rates-calc-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-color: var(--accent-teal);
+    color: var(--accent-teal);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.admin-rates-calc-icon {
+    font-size: 16px;
+}
+
+.admin-rates-tip {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--accent-teal);
+    border-radius: 4px;
+}
+
+.admin-rates-tip p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ── ADMIN PUSH / PROMO: contenedor flex-col ── */
+.admin-flex-col-gap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.admin-section-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    color: var(--gold);
+}
+
+.admin-label-sm {
+    font-size: 0.85rem;
+}
+
+.admin-promo-textarea {
+    height: auto;
+    border-radius: 12px;
+}
+
+.admin-promo-btn {
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    padding: 0.8rem;
+}
+
+.admin-promo-btn-icon {
+    font-size: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.admin-promo-result {
+    display: none;
+    padding: 0.5rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
+/* ── ADMIN PROMO (modal config) ── */
+.admin-promo-image-input {
+    padding: 0.8rem;
+}
+
+.admin-promo-preview {
+    display: none;
+    text-align: center;
+}
+
+.admin-promo-preview-img {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.admin-promo-actions {
+    margin-top: 0.5rem;
+}
+
+/* ── ADMIN BINANCE ── */
+.binance-header {
+    margin-bottom: 1rem;
+}
+
+.binance-currency-label {
+    font-size: 0.9rem;
+}
+
+.binance-price {
+    font-size: 1.5rem;
+}
+
+.binance-meta {
+    line-height: 1.2;
+}
+
+.binance-meta-text {
+    font-size: 0.7rem;
+    display: block;
+}
+
+.binance-time {
+    font-size: 0.65rem;
+}
+
+.binance-flag {
+    height: 16px;
+}
+
+.binance-price-ecs {
+    color: #60a5fa;
+}
+
+/* ── ADMIN BINANCE HEADER BUTTON ── */
+.binance-refresh-btn {
+    font-size: 0.8rem;
+}
+
+/* ── MODAL: REJECT ── */
+.reject-textarea {
+    height: 100px;
+    margin: 1.5rem 0 1rem 0;
+    border-radius: 12px;
+}
+
+.reject-proof-label {
+    font-size: 0.8rem;
+}
+
+.reject-proof-label-icon {
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.reject-proof-input {
+    padding: 0.8rem;
+}
+
+.reject-proof-preview {
+    display: none;
+}
+
+.reject-proof-img {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.btn-reject-confirm {
+    background: var(--error);
+}
+
+.btn-cancel-muted {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+/* ── MODAL: CONFIRM ── */
+.confirm-form-wrap {
+    text-align: left;
+    margin: 1.5rem 0;
+}
+
+.confirm-message-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.confirm-message-textarea {
+    height: 80px;
+    border-radius: 12px;
+}
+
+.confirm-proof-input {
+    padding: 0.8rem;
+}
+
+.confirm-proof-preview {
+    display: none;
+}
+
+.confirm-proof-img {
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+/* ── MODAL: LOGIN (divisor, phone, otp) ── */
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.2rem 0;
+}
+
+.login-divider-line {
+    flex: 1;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.login-divider-text {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.login-phone-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.login-phone-select {
+    flex: 0 0 140px;
+    font-size: 0.85rem;
+    padding: 0.7rem 0.5rem;
+    border-color: var(--gold);
+    background-image: none;
+}
+
+.login-phone-input {
+    flex: 1;
+    margin-top: 0;
+    border-color: var(--gold);
+}
+
+.login-sms-btn {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+}
+
+.login-sms-icon {
+    font-size: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.login-otp-section {
+    display: none;
+    margin-top: 1rem;
+}
+
+.login-otp-hint {
+    color: var(--gold);
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+}
+
+.login-otp-input {
+    text-align: center;
+    font-size: 1.4rem;
+    letter-spacing: 8px;
+    font-weight: 800;
+    border-color: var(--gold);
+    margin-bottom: 0.8rem;
+}
+
+.login-verify-btn {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+}
+
+/* ── MODAL: PROMO ── */
+.promo-modal-overlay {
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.promo-modal-box {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.promo-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.promo-modal-link {
+    display: block;
+    pointer-events: none;
+}
+
+.promo-modal-img {
+    display: block;
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+}
+
+/* ── MODAL USER-HISTORY (max-width) ── */
+.user-history-modal-content {
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+/* ── FOOTER note ── */
+.footer-note {
+    margin-top: 1rem;
+    font-style: italic;
+    font-size: 0.7rem;
+}
+
+.footer-legal-gap {
+    margin-top: 0.5rem;
+}
+
+/* ── NAV ADMIN (hidden by default) ── */
+.nav-admin-hidden {
+    display: none;
+}
+
+/* ── NAV LOGOUT ICON ── */
+.nav-logout-icon {
+    font-size: 16px;
+}
+
+/* ── SEND-VIEW: saved beneficiary actions ── */
+.beneficiary-actions-wrap {
+    margin-top: 0.5rem;
+}
+
+/* ── SEND-VIEW: saved beneficiary spacing ── */
+.saved-beneficiaries-wrap {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* ── SEARCH BAR WRAPPER DATE ── */
+.search-bar-wrapper-date {
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+/* ── ADMIN BULK ACTIONS ── */
+.admin-bulk-actions-row {
+    display: none;
+    justify-content: flex-end;
+}
+
+/* ── ADMIN ICON SIZE ── */
+.icon-18 { font-size: 18px; }
+.icon-16 { font-size: 16px; }
+
+/* ── ADMIN HISTORY SPACER ── */
+.admin-separator-text {
+    margin: 0 4px;
+}
+
+/* ── MODAL: LOGIN extras ── */
+.login-modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.login-logo-img {
+    width: 100px;
+    height: 100px;
+}
+
+/* ── MODAL: COUNTRY max-height ── */
+.country-modal-content {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+

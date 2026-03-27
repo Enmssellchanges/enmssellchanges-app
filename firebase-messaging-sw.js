@@ -11,7 +11,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-const CACHE_NAME = 'enmssell-v3';
+const CACHE_NAME = 'enmssell-v5';
 const ASSETS = [
     '/',
     '/index.html',
@@ -44,8 +44,8 @@ self.addEventListener('activate', (e) => {
 
 // Fetch Event (Network First for real-time updates)
 self.addEventListener('fetch', (e) => {
-    // Skip Firebase/Firestore queries
-    if (e.request.url.includes('firestore.googleapis.com') || e.request.url.includes('firebaseinstallations')) {
+    // Skip Firebase/Firestore queries and unsupported methods like POST
+    if (e.request.method !== 'GET' || e.request.url.includes('firestore.googleapis.com') || e.request.url.includes('firebaseinstallations') || e.request.url.includes('cloudfunctions')) {
         return;
     }
 
