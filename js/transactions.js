@@ -147,9 +147,45 @@ async function handleFileSelect(event) {
   }
 }
 
-// --- Inicio Beneficiarios Frecuentes ---
+/**
+ * Valida el monto de envío y transiciona a la vista de destinatarios.
+ */
+function handleContinueToDestinatarios() {
+  if (!user) {
+    openLogin();
+    return;
+  }
+  const amountInput = document.getElementById('send-amount');
+  const amount = parseFloat(amountInput ? amountInput.value : 0);
+  if (!amount) {
+    alert("Ingresa un monto válido para continuar.");
+    return;
+  }
+  
+  // Validation for minimum amounts
+  let minVal = 0;
+  if (sourceCountry.code === 'CLP') {
+    minVal = destCountry.minCLP || 0;
+  } else if (sourceCountry.code === 'VES') {
+    minVal = Math.ceil(20 * AppConfig.bcvNumeric);
+  }
+  if (amount < minVal) {
+    alert(`El monto mínimo de envío es ${minVal.toLocaleString()} ${sourceCountry.code}(equivalente a 20 USD).`);
+    return;
+  }
 
-// --- Fin Beneficiarios Frecuentes ---
+  // Pre-seleccionar el país en el dropdown de nuevos destinatarios basándose en la Moneda de Destino
+  const countrySelect = document.getElementById('new-recipient-country');
+  if (countrySelect && destCountry && destCountry.code) {
+      const codeToValue = { 'VES': 'ves', 'COP': 'cop', 'PEN': 'pen', 'USD': 'usa', 'ECS': 'ecs', 'CLP': 'clp' };
+      if (codeToValue[destCountry.code]) {
+          countrySelect.value = codeToValue[destCountry.code];
+          if (typeof toggleRecipientCountry === 'function') toggleRecipientCountry();
+      }
+  }
+
+  showView('destinatarios');
+}
 
 /**
  * Collects data from the transfer form, validates it, creates a new transfer record,
@@ -163,7 +199,7 @@ async function simulateTransfer() {
   }
   const amountInput = document.getElementById('send-amount');
   const amount = parseFloat(amountInput ? amountInput.value : 0);
-  const sender = document.getElementById('sender-name').value;
+  const sender = (user && user.displayName && user.displayName !== 'Usuario') ? user.displayName : (user.email || 'Remitente N/A');
   let recipient = "";
   let vesData = null,
     copData = null,
@@ -177,7 +213,7 @@ async function simulateTransfer() {
     const vBank = document.getElementById('ves-bank').value;
     const vAccount = document.getElementById('ves-account').value;
     const vType = document.getElementById('ves-type').value;
-    if (!vName || !vId || !vBank || !vAccount || !sender) {
+    if (!vName || !vId || !vBank || !vAccount) {
       alert("Completa todos los datos de transferencia para Venezuela (Nombre, Cédula, Banco y Cuenta/Teléfono)");
       return;
     }
@@ -203,7 +239,7 @@ async function simulateTransfer() {
     const cId = document.getElementById('cop-id').value;
     const cBank = document.getElementById('cop-bank').value;
     const cAccount = document.getElementById('cop-account').value;
-    if (!cName || !cId || !cBank || !cAccount || !sender) {
+    if (!cName || !cId || !cBank || !cAccount) {
       alert("Completa todos los datos de transferencia para Colombia");
       return;
     }
@@ -219,7 +255,7 @@ async function simulateTransfer() {
     const pMethod = document.getElementById('pen-method').value;
     const pBank = document.getElementById('pen-bank').value;
     const pAccount = document.getElementById('pen-account').value;
-    if (!pName || !pAccount || !sender) {
+    if (!pName || !pAccount) {
       alert("Completa todos los datos de transferencia para Perú");
       return;
     }
@@ -233,7 +269,7 @@ async function simulateTransfer() {
     const uName = document.getElementById('usa-name').value;
     const uType = document.getElementById('usa-zelle-type').value;
     const uData = document.getElementById('usa-zelle-data').value;
-    if (!uName || !uData || !sender) {
+    if (!uName || !uData) {
       alert("Completa todos los campos para el envío a USA");
       return;
     }
@@ -259,7 +295,7 @@ async function simulateTransfer() {
     const eId = document.getElementById('ecs-id').value;
     const eBank = document.getElementById('ecs-bank').value;
     const eAccount = document.getElementById('ecs-account').value;
-    if (!eName || !eId || !eBank || !eAccount || !sender) {
+    if (!eName || !eId || !eBank || !eAccount) {
       alert("Completa todos los datos de transferencia para Ecuador");
       return;
     }
@@ -275,7 +311,7 @@ async function simulateTransfer() {
     const cBank = document.getElementById('clp-bank').value;
     const cType = document.getElementById('clp-type').value;
     const cAccount = document.getElementById('clp-account').value;
-    if (!cName || !cId || !cBank || !cAccount || !cType || !sender) {
+    if (!cName || !cId || !cBank || !cAccount || !cType) {
       alert("Completa todos los datos de transferencia para Chile");
       return;
     }
@@ -287,14 +323,15 @@ async function simulateTransfer() {
       account: cAccount
     };
   } else {
-    recipient = document.getElementById('recipient-name').value;
-    if (!recipient || !sender) {
-      alert("Completa todos los campos (Remitente y Destinatario)");
+    recipient = document.getElementById('recipient-name')?.value;
+    if (!recipient) {
+      alert("Completa el Nombre del Destinatario");
       return;
     }
   }
   if (!amount) {
     alert("Ingresa un monto válido");
+    showView('send');
     return;
   }
   if (!selectedProofBase64) {

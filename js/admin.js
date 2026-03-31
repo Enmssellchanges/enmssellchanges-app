@@ -222,32 +222,6 @@ function updateAdminLogoPreview(bankName) {
     container.style.display = 'flex';
 }
 
-/**
- * Utility to compress images before uploading to Storage
- * Ensures faster performance and lower storage/bandwidth costs
- */
-async function compressImage(base64Str, maxWidth = 1000, quality = 0.7) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.src = base64Str;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth) {
-                height = (maxWidth / width) * height;
-                width = maxWidth;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        };
-    });
-}
 
 function authorizeTx(id) {
     txToAuthorize = id;

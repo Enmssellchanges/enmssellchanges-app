@@ -8,24 +8,23 @@
  *   - Maneja el ciclo de vida de las transacciones en tiempo real
  */
 
-// ── Firebase Configuration ──────────────────────────────────────────────────
-const firebaseConfig = {
-  projectId: "enmssellchanges-premium",
-  appId: "1:591347469322:web:aadf4993968d3cbf57e3f3",
-  storageBucket: "enmssellchanges-premium.firebasestorage.app",
-  apiKey: "AIzaSyDjZnv2KSnmpiptFzkMceHz1r08-WeVBZs",
-  authDomain: "enmssellchanges-premium.firebaseapp.com",
-  messagingSenderId: "591347469322",
-  measurementId: "G-1VV3QWHZ20"
-};
-const countryNameMap = {
-  'CLP': 'Chile',
-  'VES': 'Venezuela',
-  'COP': 'Colombia',
-  'PEN': 'Perú',
-  'USD': 'USA',
-  'ECS': 'Ecuador'
-};
+// ── Firebase Configuration ────────────────────────────────────────────────────────────
+// Fuente canónica: config.js > APP_CONSTANTS.FIREBASE_CONFIG
+// Fallback inline: garantiza inicialización aunque el SW sirva config.js viejo en móvil.
+const firebaseConfig = (typeof APP_CONSTANTS !== 'undefined' && APP_CONSTANTS.FIREBASE_CONFIG)
+  ? APP_CONSTANTS.FIREBASE_CONFIG
+  : {
+      projectId: 'enmssellchanges-premium',
+      appId: '1:591347469322:web:aadf4993968d3cbf57e3f3',
+      storageBucket: 'enmssellchanges-premium.firebasestorage.app',
+      apiKey: 'AIzaSyDjZnv2KSnmpiptFzkMceHz1r08-WeVBZs',
+      authDomain: 'enmssellchanges-premium.firebaseapp.com',
+      messagingSenderId: '591347469322',
+      measurementId: 'G-1VV3QWHZ20'
+    };
+const countryNameMap = (typeof APP_CONSTANTS !== 'undefined' && APP_CONSTANTS.COUNTRY_NAME_MAP)
+  ? APP_CONSTANTS.COUNTRY_NAME_MAP
+  : { 'CLP': 'Chile', 'VES': 'Venezuela', 'COP': 'Colombia', 'PEN': 'Perú', 'USD': 'USA', 'ECS': 'Ecuador' };
 let auth, db, messaging, storage;
 if (typeof firebase !== 'undefined') {
   firebase.initializeApp(firebaseConfig);
@@ -244,27 +243,6 @@ function initBinanceMonitor() {
     // El Monitor Yadio se actualiza automáticamente via Cloud Function cada 15 min.
   }, 5 * 60 * 1000); // 5 minutes
 }
-// ── Foreground Messaging ────────────────────────────────────────────────────
-// Muestra un toast cuando llega una notificación con la app en primer plano.
-if (messaging) {
-  messaging.onMessage(payload => {
-
-    showToast(payload.notification.title, payload.notification.body);
-  });
-}
-// ── Animaciones de Toast (inyectadas dinámicamente) ────────────────────────
-const style = document.createElement('style');
-style.innerHTML = `
-    @keyframes slideInNotification {
-    from { transform: translateX(120%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-    }
-    @keyframes slideOutNotification {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(120%); opacity: 0; }
-    }
-    `;
-document.head.appendChild(style);
 
 /**
  * Checks if there is an active promotional banner to display.

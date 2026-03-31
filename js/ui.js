@@ -60,14 +60,14 @@ function updateConnectionStatus() {
  */
 function showView(view) {
   // Auth Check for sensitive views
-  const sensitiveViews = ['send', 'history', 'admin', 'profile'];
+  const sensitiveViews = ['send', 'destinatarios', 'history', 'admin', 'profile'];
   if (sensitiveViews.includes(view) && !user) {
     console.warn("Unauthenticated access to:", view);
     openLogin();
     return;
   }
 
-  const views = ['home', 'send', 'history', 'tracking', 'admin', 'profile'];
+  const views = ['home', 'send', 'destinatarios', 'history', 'tracking', 'admin', 'profile'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     if (el) el.style.display = v === view ? v === 'home' ? 'flex' : 'block' : 'none';
@@ -87,6 +87,10 @@ function showView(view) {
   if (view === 'send') {
     calculate();
     renderUserAccounts();
+    // Refrescar lista de destinatarios frecuentes para asegurar sincronización
+    if (typeof renderBeneficiariesDropdown === 'function') {
+      renderBeneficiariesDropdown();
+    }
   }
   if (view === 'history') loadTransactions();
   if (view === 'admin') loadAdminData();
@@ -155,6 +159,24 @@ function selectVesType(type) {
     accountLabel.innerText = "Número de Cuenta (Solo números - 20 dígitos)";
     accountInput.placeholder = "Ej: 01020000001234567890";
     accountInput.maxLength = 20;
+  }
+}
+
+/**
+ * Muestra u oculta los campos de destinatario según el país seleccionado.
+ */
+function toggleRecipientCountry() {
+  const country = document.getElementById('new-recipient-country').value;
+  const countries = ['ves', 'cop', 'pen', 'clp', 'usa', 'ecs'];
+
+  countries.forEach(c => {
+    const el = document.getElementById(`${c}-fields`);
+    if (el) el.style.display = 'none';
+  });
+
+  if (country) {
+    const selectedEl = document.getElementById(`${country}-fields`);
+    if (selectedEl) selectedEl.style.display = 'grid'; 
   }
 }
 
@@ -471,26 +493,16 @@ if (typeof messaging !== 'undefined' && messaging) {
   });
 }
 
-// Foreground messaging handler
-
 function showToast(title, message) {
   const toast = document.createElement('div');
-  toast.className = 'glass';
-  toast.style.cssText = `
-    position: fixed; top: 20px; right: 20px; z-index: 10000;
-    border: 1px solid var(--gold); border-radius: 16px;
-    padding: 1.2rem; width: 320px; color: var(--text-main);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.6);
-    animation: slideInNotification 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    display: flex; gap: 1rem; align-items: flex-start;
-    `;
+  toast.className = 'glass toast-notification';
   toast.innerHTML = `
-        <div style="background: rgba(204, 163, 83, 0.1); border-radius: 12px; padding: 0.6rem; display: flex;">
+        <div class="toast-icon">
             <span class="material-icons" style="color: var(--gold);">notifications_active</span>
         </div>
         <div style="flex: 1;">
-            <div style="font-weight: 800; color: var(--gold-light); margin-bottom: 2px; font-size: 0.9rem; letter-spacing: 0.5px;">${title}</div>
-            <div style="font-size: 0.8rem; opacity: 0.9; line-height: 1.5; font-weight: 500;">${message}</div>
+            <div class="toast-title">${title}</div>
+            <div class="toast-body">${message}</div>
         </div>
     `;
   document.body.appendChild(toast);
@@ -498,26 +510,6 @@ function showToast(title, message) {
     toast.style.animation = 'slideOutNotification 0.5s ease-in forwards';
     setTimeout(() => toast.remove(), 500);
   }, 6000);
-}
-
-function playNotificationSound() {
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5
-    oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5); // A4
-
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.5);
-  } catch (e) {
-    console.warn("Could not play notification sound (Audio API blocked?):", e);
-  }
 }
 
 function copyToClipboard(text, btn) {
@@ -650,5 +642,133 @@ function closePromoModal() {
     const modal = document.getElementById('promo-modal');
     if (modal) {
         modal.style.display = 'none';
+    }
+}
+
+// --- MÁS MENU & MODALS ---
+function openMoreMenu() {
+    const modal = document.getElementById('more-menu-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Reset submenu state
+        const submenu = document.getElementById('about-submenu');
+        const icon = document.getElementById('about-expand-icon');
+        if (submenu) submenu.style.display = 'none';
+        if (icon) icon.innerText = 'expand_more';
+    }
+}
+
+function closeMoreMenu() {
+    const modal = document.getElementById('more-menu-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function toggleAboutSubmenu() {
+    const submenu = document.getElementById('about-submenu');
+    const icon = document.getElementById('about-expand-icon');
+    if (submenu && icon) {
+        if (submenu.style.display === 'none') {
+            submenu.style.display = 'flex';
+            icon.innerText = 'expand_less';
+            icon.style.color = 'var(--gold-light)';
+        } else {
+            submenu.style.display = 'none';
+            icon.innerText = 'expand_more';
+            icon.style.color = 'var(--text-muted)';
+        }
+    }
+}
+
+function openBankAccountsModal() {
+    const modal = document.getElementById('global-bank-accounts-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderGlobalBankAccounts();
+    }
+}
+
+function closeBankAccountsModal() {
+    const modal = document.getElementById('global-bank-accounts-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function openPrivacyModal() {
+    const modal = document.getElementById('privacy-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closePrivacyModal() {
+    const modal = document.getElementById('privacy-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function openTermsModal() {
+    const modal = document.getElementById('terms-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeTermsModal() {
+    const modal = document.getElementById('terms-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function renderGlobalBankAccounts() {
+    const list = document.getElementById('global-bank-accounts-list');
+    if (!list) return;
+    if (typeof db !== 'undefined') {
+        db.collection('settings').doc('accounts').get().then(doc => {
+            const accounts = doc.exists ? doc.data().list || [] : [];
+            list.innerHTML = accounts.length ? accounts.map(a => `
+                <div class="glass account-card" style="margin-bottom: 0;">
+                    <div class="bank-logo-container">
+                        <img src="${getBankLogo(a.bank)}" class="bank-logo" alt="Logo">
+                        <button class="copy-all-btn" onclick="copyAccountData('${a.bank}', '${a.name}', '${a.id}', '${a.number}', '${a.type}', '${a.email}')">
+                            <span class="material-icons" style="font-size: 16px;">content_copy</span> COPIAR TODO
+                        </button>
+                    </div>
+                    <div>
+                        <div style="font-weight: 800; color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.2rem; letter-spacing: 0.5px;">${a.bank}</div>
+                        ${a.bank.toLowerCase().includes('estado') ? '<div style="color: #ff4d4d; font-size: 0.75rem; font-weight: bold; margin-bottom: 0.5rem;">DISPONIBLE SÓLO PARA CAJA VECINA</div>' : ''}
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 0.4rem; font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">
+                                <span style="color: var(--accent-teal); font-weight: 600;">Titular:</span>
+                                <span style="color: var(--text-main); font-weight: 500;">${a.name}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">
+                                <span style="color: var(--accent-teal); font-weight: 600;">Cédula/RUT:</span>
+                                <span style="color: var(--text-main); font-weight: 500;">${a.id}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">
+                                <span style="color: var(--accent-teal); font-weight: 600;">Número:</span>
+                                <span style="color: var(--text-main); font-weight: 500;">${a.number}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">
+                                <span style="color: var(--accent-teal); font-weight: 600;">Tipo:</span>
+                                <span style="color: var(--text-main); font-weight: 500;">${a.type}</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="color: var(--accent-teal); font-weight: 600;">Email:</span>
+                                <span style="color: var(--text-main); font-weight: 500; font-size: 0.75rem;">${a.email}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') : '<p style="color: var(--error); font-size: 0.8rem; text-align: center;">Consulte con soporte para obtener datos.</p>';
+        }).catch(err => {
+            console.error("Error fetching bank accounts from more menu:", err);
+            list.innerHTML = '<p style="color: var(--error); font-size: 0.8rem; text-align: center;">Error al cargar las cuentas.</p>';
+        });
     }
 }

@@ -11,12 +11,15 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-const CACHE_NAME = 'enmssell-v5';
+const CACHE_NAME = 'enmssell-v10.7';
 const ASSETS = [
     '/',
     '/index.html',
-    '/style.css',
-    '/app.js',
+    '/css/style.css',
+    '/js/config.js',
+    '/js/app.js',
+    '/js/api.js',
+    '/js/ui.js',
     '/logo-enmssell.webp',
     '/manifest.json'
 ];
@@ -61,12 +64,10 @@ self.addEventListener('fetch', (e) => {
 });
 
 messaging.onBackgroundMessage((payload) => {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
         icon: '/logo-enmssell.webp'
     };
-
     self.registration.showNotification(notificationTitle, notificationOptions);
 });

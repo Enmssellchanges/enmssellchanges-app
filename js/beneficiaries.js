@@ -15,105 +15,99 @@ async function loadUserBeneficiaries() {
 }
 
 function renderBeneficiariesDropdown() {
-  const container = document.getElementById('saved-beneficiaries-container');
-  const select = document.getElementById('saved-beneficiaries-select');
-  const actions = document.getElementById('beneficiary-actions');
-  if (!container || !select) return;
+  const listContainer = document.getElementById('saved-beneficiaries-list');
+  const sendSelect = document.getElementById('send-view-recipient-select');
 
   if (savedBeneficiariesList.length === 0) {
-    container.style.display = 'block';
-    select.innerHTML = '<option value="">No tienes destinatarios guardados aún</option>';
-    select.disabled = true;
-    if (actions) actions.innerHTML = '';
+    if (listContainer) {
+      listContainer.innerHTML = '<div class="text-muted text-center p-md">No tienes destinatarios guardados aún.</div>';
+    }
+    if (sendSelect) {
+      // NUNCA deshabilitar el select, permitir siempre ir a gestionar/agregar
+      sendSelect.innerHTML = `
+        <option value="">(Sin destinatarios guardados)</option>
+        <option value="manage" style="color: var(--gold); font-weight: bold;">➕ Gestionar / Agregar Nuevo...</option>
+      `;
+      sendSelect.disabled = false;
+    }
     return;
   }
 
   let optionsHtml = '<option value="">Selecciona un destinatario frecuente...</option>';
+  let listHtml = '';
+
   savedBeneficiariesList.forEach((b, index) => {
     const destName = b.recipientName || 'Sin Nombre';
-    optionsHtml += `<option value="${index}">${destName}</option>`;
-  });
-  select.innerHTML = optionsHtml;
-  select.disabled = false;
-  container.style.display = 'block';
-
-  // Inject delete button + confirmation panel directly — no dynamic show/hide needed
-  if (actions) {
-    actions.innerHTML = `
-      <div style="display:flex; gap:0.5rem; margin-top:0.4rem;">
-        <button type="button" id="btn-delete-beneficiary" onclick="deleteSavedBeneficiary()"
-          style="padding:0.5rem 0.8rem; border-radius:10px; border:1.5px solid var(--error);
-                 background:rgba(239,68,68,0.1); color:var(--error); cursor:pointer;
-                 font-size:0.78rem; font-weight:700; display:flex; align-items:center; gap:4px; transition:all 0.2s;">
-          <span class="material-icons" style="font-size:15px;">delete</span> Eliminar seleccionado
+    const destCode = b.destCode || 'VES';
+    optionsHtml += `<option value="${index}">${destName} (${destCode})</option>`;
+    
+    listHtml += `
+      <div class="glass p-sm flex-between" style="border-radius:10px; align-items:center;">
+        <div style="cursor:pointer; flex: 1; display:flex; flex-direction:column;" onclick="handleSelectBeneficiaryFromList(${index})">
+          <strong class="text-teal">${destName}</strong>
+          <small class="text-muted">País: ${destCode}</small>
+        </div>
+        <button type="button" onclick="deleteSavedBeneficiary(${index})" class="material-icons text-error" style="background:transparent; border:none; cursor:pointer; padding:5px;" title="Eliminar destinatario">
+          delete
         </button>
       </div>
-      <div id="delete-beneficiary-confirm"
-        style="display:none; margin-top:0.6rem; background:rgba(239,68,68,0.1);
-               border:1px solid var(--error); border-radius:10px; padding:0.6rem 0.8rem;
-               font-size:0.8rem; color:var(--error);">
-        <strong id="delete-beneficiary-name"></strong> será eliminado permanentemente. ¿Confirmar?
-        <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-          <button type="button" onclick="confirmDeleteBeneficiary()"
-            style="flex:1; padding:0.5rem; border-radius:8px; border:none;
-                   background:var(--error); color:white; font-weight:700; font-size:0.78rem; cursor:pointer;">
-            ✓ Sí, eliminar
-          </button>
-          <button type="button" onclick="cancelDeleteBeneficiary()"
-            style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid rgba(255,255,255,0.2);
-                   background:transparent; color:var(--text-muted); font-weight:700; font-size:0.78rem; cursor:pointer;">
-            Cancelar
-          </button>
-        </div>
-      </div>`;
+    `;
+  });
+
+  if (listContainer) {
+    listContainer.innerHTML = listHtml;
+  }
+
+  if (sendSelect) {
+    // Añadir opción de gestión al final por si acaso
+    sendSelect.innerHTML = optionsHtml + '<option value="manage" style="font-weight: 700; color: var(--gold);">➕ Agregar / Gestionar Destinatario...</option>';
+    sendSelect.disabled = false;
+    console.log("[Beneficiaries] Selector de envío actualizado con", savedBeneficiariesList.length, "opciones.");
   }
 }
 
-// Show confirmation panel — reads currently selected option from dropdown
-function deleteSavedBeneficiary() {
-  const select = document.getElementById('saved-beneficiaries-select');
-  const index = select.value;
-  if (index === '') {
-    _showFillToast('⚠️ Selecciona un destinatario primero');
+/**
+ * Maneja el cambio en el selector de destinatarios de la vista Enviar.
+ * Si se elige "manage", redirige a la vista de destinatarios.
+ * Si se elige un índice, carga los datos del beneficiario.
+ */
+function handleSendRecipientSelect(val) {
+  if (val === 'manage') {
+    showView('destinatarios');
+    // Si la vista destinatarios tiene el formulario plegable, podrías abrirlo:
+    const details = document.getElementById('add-new-recipient-container');
+    if (details) details.open = true;
+    
+    // Reset select to placeholder
+    document.getElementById('send-view-recipient-select').value = "";
     return;
   }
+  
+  if (val !== "") {
+    loadSavedBeneficiary(val);
+  }
+}
+
+async function deleteSavedBeneficiary(index) {
   const b = savedBeneficiariesList[index];
   if (!b) return;
-  const nameEl = document.getElementById('delete-beneficiary-name');
-  if (nameEl) nameEl.textContent = b.recipientName || 'el destinatario';
-  const panel = document.getElementById('delete-beneficiary-confirm');
-  if (panel) panel.style.display = 'block';
-}
-
-// Cancel deletion
-function cancelDeleteBeneficiary() {
-  const panel = document.getElementById('delete-beneficiary-confirm');
-  if (panel) panel.style.display = 'none';
-}
-
-// Confirm and execute deletion from Firestore + local list
-async function confirmDeleteBeneficiary() {
-  const select = document.getElementById('saved-beneficiaries-select');
-  const index = parseInt(select.value);
-  if (isNaN(index)) return;
-  const b = savedBeneficiariesList[index];
-  const name = b ? (b.recipientName || 'el destinatario') : 'el destinatario';
-
-  savedBeneficiariesList.splice(index, 1);
-
-  try {
-    if (user && typeof db !== 'undefined') {
-      await db.collection('users').doc(user.uid).set(
-        { beneficiaries: savedBeneficiariesList },
-        { merge: true }
-      );
+  const name = b.recipientName || 'el destinatario';
+  
+  if (confirm(`¿Estás seguro de que deseas eliminar a ${name} permanentemente?`)) {
+    savedBeneficiariesList.splice(index, 1);
+    try {
+      if (user && typeof db !== 'undefined') {
+        await db.collection('users').doc(user.uid).set(
+          { beneficiaries: savedBeneficiariesList },
+          { merge: true }
+        );
+      }
+    } catch (err) {
+      console.error('Error eliminando beneficiario:', err);
     }
-  } catch (err) {
-    console.error('Error eliminando beneficiario:', err);
+    renderBeneficiariesDropdown();
+    _showFillToast('🗑️ ' + name + ' eliminado');
   }
-
-  renderBeneficiariesDropdown();
-  _showFillToast('🗑️ ' + name + ' eliminado');
 }
 
 // Helper: safely set a value on an element by ID, with logging
@@ -145,20 +139,16 @@ function _showFillToast(name) {
   setTimeout(() => { toast.style.opacity = '0'; }, 3000);
 }
 
-function loadSavedBeneficiary() {
-  const select = document.getElementById('saved-beneficiaries-select');
-  const index = select.value;
+function loadSavedBeneficiary(providedIndex) {
+  let index = providedIndex;
+  if (index === undefined || index === null) {
+    const select = document.getElementById('send-view-recipient-select');
+    if (!select) return;
+    index = select.value;
+  }
   if (index === '') return;
   const b = savedBeneficiariesList[index];
   if (!b) return;
-
-  // Set sender name (only if user hasn't manually typed something)
-  if (b.senderName) {
-    const senderField = document.getElementById('sender-name');
-    if (senderField && !senderField.dataset.userEdited) {
-      senderField.value = b.senderName;
-    }
-  }
 
   // Set destination country — ALWAYS use AppConfig.countries (live rates from Firestore)
   // NEVER use the stale global `countries` array (has default rate=0.05, not the live rate!)
@@ -249,9 +239,124 @@ function loadSavedBeneficiary() {
       _fillField('recipient-name', b.recipientName || '');
     }
 
+    // Si se cargó el destinatario, asegurar que en la vista "Enviar" se refleje la selección también
+    const sendSelect = document.getElementById('send-view-recipient-select');
+    if (sendSelect && sendSelect.value !== index) {
+      sendSelect.value = index;
+    }
+
     _showFillToast(b.recipientName || 'destinatario');
   }, 300);
 }
+
+
+
+function handleSelectBeneficiaryFromList(index) {
+  // Update select view for send
+  const sendSelect = document.getElementById('send-view-recipient-select');
+  if (sendSelect) {
+    sendSelect.value = index;
+  }
+  
+  // Actually load the form fields
+  loadSavedBeneficiary(index);
+  
+  // Transition logic
+  if (typeof showView === 'function') {
+    showView('send');
+  }
+}
+
+async function saveNewBeneficiaryFromView() {
+  const countryCodeVal = document.getElementById('new-recipient-country').value;
+  if (!countryCodeVal) {
+    _showFillToast('⚠️ Seleccione un país destino primero');
+    return;
+  }
+  const countryCode = countryCodeVal.toUpperCase();
+  
+  const txName = document.getElementById('recipient-name') ? document.getElementById('recipient-name').value : '';
+  if (!txName || txName.trim() === '') {
+     _showFillToast('⚠️ Ingrese el nombre del destinatario');
+     return;
+  }
+  
+  const submitBtn = event ? event.target : null;
+  if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Guardando...';
+  }
+
+  const tx = {
+    sender: '',
+    name: txName,
+  };
+  
+  if(countryCode === 'VES') {
+      tx.vesData = {
+          type: document.getElementById('ves-type').value,
+          idPrefix: document.getElementById('ves-id-prefix').value,
+          id: document.getElementById('ves-id').value,
+          bank: document.getElementById('ves-bank').value,
+          account: document.getElementById('ves-account').value
+      };
+  } else if (countryCode === 'COP') {
+      tx.copData = {
+          docType: document.getElementById('cop-doc-type').value,
+          id: document.getElementById('cop-id').value,
+          bank: document.getElementById('cop-bank').value,
+          account: document.getElementById('cop-account').value
+      };
+  } else if (countryCode === 'PEN') {
+      tx.penData = {
+          method: document.getElementById('pen-method').value,
+          bank: document.getElementById('pen-bank').value,
+          account: document.getElementById('pen-account').value
+      };
+  } else if (countryCode === 'USA') {
+      tx.usaData = {
+          type: document.getElementById('usa-zelle-type').value,
+          data: document.getElementById('usa-zelle-data').value
+      };
+  } else if (countryCode === 'ECS') {
+      tx.ecsData = {
+          id: document.getElementById('ecs-id').value,
+          bank: document.getElementById('ecs-bank').value,
+          account: document.getElementById('ecs-account').value
+      };
+  } else if (countryCode === 'CLP') {
+      tx.clpData = {
+          id: document.getElementById('clp-id').value,
+          bank: document.getElementById('clp-bank').value,
+          type: document.getElementById('clp-type').value,
+          account: document.getElementById('clp-account').value
+      };
+  }
+  
+  // mock for saving logic
+  const previousDest = destCountry;
+  destCountry = { code: countryCode };
+  await saveBeneficiaryToProfile(tx);
+  destCountry = previousDest;
+  
+  _showFillToast('✅ Destinatario guardado exitosamente');
+  document.getElementById('new-recipient-country').value = '';
+  document.getElementById('recipient-name').value = '';
+  if (typeof toggleRecipientCountry === 'function') {
+      toggleRecipientCountry();
+  }
+
+  const detailsEl = document.getElementById('add-new-recipient-container');
+  if (detailsEl) {
+      detailsEl.removeAttribute('open');
+  }
+  
+  if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Guardar y Usar';
+  }
+}
+
 
 async function saveBeneficiaryToProfile(tx) {
   if (!user || typeof db === 'undefined') return;

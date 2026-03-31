@@ -252,7 +252,7 @@ function updateAuthUI() {
         authContainer.innerHTML = `
     <div style="display: flex; align-items: center; gap: 1rem;">
         <img src="${user.photo || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--gold); cursor: pointer;" onclick="showView('profile')">
-        <span class="user-name-display" style="font-weight: 600; cursor: pointer;" onclick="showView('profile')">${user.name}</span>
+        <span class="user-name-display" style="font-weight: 600; cursor: pointer;" onclick="showView('profile')">Hola, ${user.name || 'Usuario'}</span>
         <button class="btn-signin" style="padding: 0.4rem 1rem;" onclick="handleLogout()">Salir</button>
     </div>
         `;
@@ -287,7 +287,7 @@ function updateAuthUI() {
 function resetAuthUI() {
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
-        authContainer.innerHTML = `<button class="btn-signin" onclick="openLogin()">Iniciar Sesión</button>`;
+        authContainer.innerHTML = `<button class="btn-signin" onclick="openLogin()">Registrarse</button>`;
     }
     const adminNav = document.getElementById('nav-admin');
     if (adminNav) adminNav.style.display = 'none';

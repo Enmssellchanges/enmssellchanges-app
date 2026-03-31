@@ -21,7 +21,6 @@ const APP_CONSTANTS = {
   ADMIN_EMAIL: 'enmssellchanges@gmail.com',
 
   // Versión del script admin.js — incrementar al publicar cambios en ese archivo.
-  // Formato: 'js/admin.js?v=X.X' — el parámetro bust de caché se genera automáticamente.
   ADMIN_SCRIPT_VERSION: '10.4',
 
   // ── Contacto / Soporte ──────────────────────────────────────────────────────
@@ -30,8 +29,31 @@ const APP_CONSTANTS = {
 
   // ── Notificaciones Push (Firebase Cloud Messaging) ──────────────────────────
   // Clave pública VAPID generada en la consola de Firebase > Cloud Messaging.
-  // Cambiar si se regenera el par de claves en Firebase.
   FCM_VAPID_KEY: 'BB9P-4noUBBoTSK5T8NbqhsNhP_6tHZVOq7a9vY_RZQItqeP-pwqHKB6lTAnABXUXBJfFT43H6DfeMGCVAynggQ',
+
+  // ── Firebase Configuration ──────────────────────────────────────────────────
+  // Configuración pública del proyecto. Restringir la API key por dominio
+  // en Google Cloud Console > APIs & Services > Credentials.
+  FIREBASE_CONFIG: {
+    projectId: 'enmssellchanges-premium',
+    appId: '1:591347469322:web:aadf4993968d3cbf57e3f3',
+    storageBucket: 'enmssellchanges-premium.firebasestorage.app',
+    apiKey: 'AIzaSyDjZnv2KSnmpiptFzkMceHz1r08-WeVBZs',
+    authDomain: 'enmssellchanges-premium.firebaseapp.com',
+    messagingSenderId: '591347469322',
+    measurementId: 'G-1VV3QWHZ20'
+  },
+
+  // ── Mapa de divisas → países (fallback para display) ────────────────────────
+  // Usado como fallback en ui.js getCountryName() cuando country.name no existe.
+  COUNTRY_NAME_MAP: {
+    'CLP': 'Chile',
+    'VES': 'Venezuela',
+    'COP': 'Colombia',
+    'PEN': 'Perú',
+    'USD': 'USA',
+    'ECS': 'Ecuador'
+  },
 
 };
 

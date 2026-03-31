@@ -80,3 +80,18 @@ node_modules/
 # Imágenes locales no versionadas
 logo-enmssell.png
 store_icon.png
+
+# TWA tooling backup files
+twa-manifest-backup.json
+
+# TWA manifest (solo versionar cambios intencionales)
+twa-manifest.json
+
+# Keystores, firmas y certificados (archivos sensibles de firma de app)
+*.keystore
+*.jks
+*.pem
+upload_certificate*.pem
+new-upload-key.keystore
+signing*.keystore
+upload-keystore-new.jks
