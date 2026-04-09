@@ -3,6 +3,7 @@
     "short_name": "Enmssell",
     "id": "com.enmssell.changes",
     "description": "Servicio Premium de Cambio de Divisas",
+    "gcm_sender_id": "591347469322",
     "start_url": "/",
     "scope": "/",
     "display": "standalone",
@@ -34,4 +35,4 @@
         "finance",
         "business"
     ]
-}
+}

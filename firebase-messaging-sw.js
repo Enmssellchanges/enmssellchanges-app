@@ -11,7 +11,7 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-const CACHE_NAME = 'enmssell-v10.7';
+const CACHE_NAME = 'enmssell-v10.8';
 const ASSETS = [
     '/',
     '/index.html',
@@ -20,8 +20,9 @@ const ASSETS = [
     '/js/app.js',
     '/js/api.js',
     '/js/ui.js',
-    '/logo-enmssell.webp',
-    '/manifest.json'
+    '/logo-enmssell.png',
+    '/manifest.json',
+    '/firebase-messaging-sw.js'
 ];
 
 // Install Event
@@ -30,7 +31,7 @@ self.addEventListener('install', (e) => {
     e.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS);
-        })
+        }).catch(err => console.warn('[SW] Cache addAll error:', err))
     );
 });
 
@@ -41,14 +42,19 @@ self.addEventListener('activate', (e) => {
             return Promise.all(
                 keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
             );
-        })
+        }).then(() => self.clients.claim())
     );
 });
 
 // Fetch Event (Network First for real-time updates)
 self.addEventListener('fetch', (e) => {
-    // Skip Firebase/Firestore queries and unsupported methods like POST
-    if (e.request.method !== 'GET' || e.request.url.includes('firestore.googleapis.com') || e.request.url.includes('firebaseinstallations') || e.request.url.includes('cloudfunctions')) {
+    if (
+        e.request.method !== 'GET' ||
+        e.request.url.includes('firestore.googleapis.com') ||
+        e.request.url.includes('firebaseinstallations') ||
+        e.request.url.includes('cloudfunctions') ||
+        e.request.url.includes('googleapis.com')
+    ) {
         return;
     }
 
@@ -63,11 +69,45 @@ self.addEventListener('fetch', (e) => {
     );
 });
 
+// Background notifications (app cerrada o en segundo plano)
 messaging.onBackgroundMessage((payload) => {
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/logo-enmssell.webp'
+    console.log('[SW] Notificación en segundo plano:', payload);
+
+    const title = (payload.notification && payload.notification.title) || 'Enmsell';
+    const body  = (payload.notification && payload.notification.body)  || '';
+    const data  = payload.data || {};
+
+    const options = {
+        body: body,
+        icon: '/logo-enmssell.png',
+        badge: '/logo-enmssell.png',
+        vibrate: [200, 100, 200],
+        tag: 'enmsell-notification',
+        renotify: true,
+        requireInteraction: false,
+        data: { url: self.location.origin, ...data }
     };
-    self.registration.showNotification(notificationTitle, notificationOptions);
+
+    self.registration.showNotification(title, options);
+});
+
+// Abrir/enfocar la app cuando el usuario toca la notificación en móvil
+self.addEventListener('notificationclick', (e) => {
+    e.notification.close();
+    const targetUrl = (e.notification.data && e.notification.data.url) || self.location.origin;
+
+    e.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            // Si la app ya está abierta, enfocarla
+            for (const client of clientList) {
+                if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // Si no está abierta, abrirla
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+        })
+    );
 });

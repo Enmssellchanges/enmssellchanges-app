@@ -8,6 +8,7 @@
      [NAV]           — Barra de navegación superior
      [VISTA: HOME]   — Pantalla de inicio con calculadora rápida
      [VISTA: SEND]   — Formulario de nuevo envío
+       [SEND: HIDDEN FIELDS]  — Inputs ocultos send-* que lee simulateTransfer()
      [VISTA: HISTORY]— Historial de transacciones del usuario
      [VISTA: TRACKING]— Seguimiento de envíos en tiempo real
      [VISTA: PROFILE]— Perfil del usuario
@@ -82,8 +83,8 @@
             </a>
             <a onclick="showView('admin')" id="nav-admin" class="nav-admin-hidden">Admin</a>
         </div>
-        <div id="auth-container">
-            <button class="btn-signin" onclick="openLogin()">Iniciar Sesión</button>
+        <div class="auth-container" id="auth-container">
+            <button class="btn-signin" onclick="openLogin()">Iniciar sesión</button>
         </div>
     </nav>
 
@@ -304,7 +305,81 @@
                             <!-- Se llenará desde beneficiaries.js -->
                         </select>
                     </div>
+
+                    <!-- ============================================================ [SEND: HIDDEN FIELDS] ============================================================ -->
+                    <!-- Inputs invisibles leídos por simulateTransfer(). NO mover ni renombrar. -->
+                    <div id="send-hidden-fields" style="display:none;" aria-hidden="true">
+                        <input type="text" id="send-recipient-name">
+                        <div id="send-recipient-name-container"></div>
+                        <div id="send-ves-fields">
+                            <button id="send-ves-btn-mobile" onclick="selectVesType('mobile','send')"></button>
+                            <button id="send-ves-btn-transfer" onclick="selectVesType('transfer','send')"></button>
+                            <input type="hidden" id="send-ves-type" value="mobile">
+                            <select id="send-ves-id-prefix"><option value="V">V</option><option value="J">J</option><option value="E">E</option></select>
+                            <input type="text" id="send-ves-id">
+                            <select id="send-ves-bank" onchange="updateTransferLogo('ves','send')">
+                                <option value="">Banco</option>
+                                <option value="0102 - BANCO DE VENEZUELA">0102 - BANCO DE VENEZUELA</option>
+                                <option value="0105 - MERCANTIL BANCO">0105 - MERCANTIL BANCO</option>
+                                <option value="0108 - PROVINCIAL">0108 - PROVINCIAL</option>
+                                <option value="0114 - BANCO DEL CARIBE">0114 - BANCO DEL CARIBE</option>
+                                <option value="0115 - BAN EXTERIOR">0115 - BAN EXTERIOR</option>
+                                <option value="0128 - BANCO CARONI">0128 - BANCO CARONI</option>
+                                <option value="0134 - BANESCO">0134 - BANESCO</option>
+                                <option value="0151 - BFC">0151 - BFC</option>
+                                <option value="0156 - 100%BANCO">0156 - 100%BANCO</option>
+                                <option value="0157 - DELSUR">0157 - DELSUR</option>
+                                <option value="0163 - BANCO DEL TESORO">0163 - BANCO DEL TESORO</option>
+                                <option value="0166 - BANCO AGRICOLA">0166 - BANCO AGRICOLA</option>
+                                <option value="0168 - BANCRECER">0168 - BANCRECER</option>
+                                <option value="0169 - MIBANCO">0169 - MIBANCO</option>
+                                <option value="0171 - BANCO ACTIVO">0171 - BANCO ACTIVO</option>
+                                <option value="0172 - BANCAMIGA">0172 - BANCAMIGA</option>
+                                <option value="0174 - BANPLUS">0174 - BANPLUS</option>
+                                <option value="0175 - BICENTENARIO">0175 - BICENTENARIO</option>
+                                <option value="0177 - BANFANB">0177 - BANFANB</option>
+                                <option value="0191 - BNC">0191 - BNC</option>
+                            </select>
+                            <div id="send-ves-logo-preview" style="display:none;"><img src="" class="bank-logo"><small>Banco</small></div>
+                            <span id="send-ves-account-label">Telefono</span>
+                            <input type="text" id="send-ves-account" maxlength="20">
+                        </div>
+                        <div id="send-cop-fields">
+                            <select id="send-cop-doc-type"><option value="CC">CC</option><option value="PPT">PPT</option></select>
+                            <input type="text" id="send-cop-id">
+                            <select id="send-cop-bank" onchange="toggleCopType('send');updateTransferLogo('cop','send')"><option value="Bancolombia">Bancolombia</option><option value="Nequi">Nequi</option></select>
+                            <div id="send-cop-logo-preview" style="display:none;"><img src="" class="bank-logo"><small>Banco</small></div>
+                            <span id="send-cop-account-label">Cuenta</span>
+                            <input type="text" id="send-cop-account">
+                        </div>
+                        <div id="send-pen-fields">
+                            <select id="send-pen-method" onchange="togglePenType('send')"><option value="Yape">Yape</option><option value="Plin">Plin</option><option value="Banco">Banco</option></select>
+                            <div id="send-pen-bank-container"><select id="send-pen-bank" onchange="updateTransferLogo('pen','send')"><option value="BCP">BCP</option><option value="Interbank">Interbank</option></select></div>
+                            <div id="send-pen-logo-preview" style="display:none;"><img src="" class="bank-logo"><small>Banco</small></div>
+                            <span id="send-pen-account-label">Cuenta</span>
+                            <input type="text" id="send-pen-account">
+                        </div>
+                        <div id="send-usa-fields">
+                            <select id="send-usa-zelle-type" onchange="toggleUsaType('send')"><option value="phone">Telefono</option><option value="email">Email</option></select>
+                            <span id="send-usa-zelle-label">Zelle</span>
+                            <input type="text" id="send-usa-zelle-data">
+                        </div>
+                        <div id="send-ecs-fields">
+                            <input type="text" id="send-ecs-id">
+                            <select id="send-ecs-bank" onchange="updateTransferLogo('ecs','send')"><option value="Banco Pichincha">Banco Pichincha</option><option value="Banco Guayaquil">Banco Guayaquil</option></select>
+                            <div id="send-ecs-logo-preview" style="display:none;"><img src="" class="bank-logo"><small>Banco</small></div>
+                            <input type="text" id="send-ecs-account">
+                        </div>
+                        <div id="send-clp-fields">
+                            <input type="text" id="send-clp-id">
+                            <select id="send-clp-bank" onchange="updateTransferLogo('clp','send')"><option value="">Banco</option><option value="Banco Estado">Banco Estado</option><option value="Santander">Santander</option><option value="Banco de Chile">Banco de Chile</option><option value="BCI">BCI</option></select>
+                            <div id="send-clp-logo-preview" style="display:none;"><img src="" class="bank-logo"><small>Banco</small></div>
+                            <select id="send-clp-type"><option value="">Tipo</option><option value="Cuenta Corriente">Cuenta Corriente</option><option value="Cuenta Vista">Cuenta Vista</option><option value="Cuenta de Ahorro">Cuenta de Ahorro</option></select>
+                            <input type="text" id="send-clp-account">
+                        </div>
+                    </div><!-- end send-hidden-fields -->
                     
+
                     <!-- [MODIFICACIÓN: Campos de Nota y Comprobante restaurados] -->
                     <div id="payment-details-section" class="mt-lg text-left">
                         <div class="mb-lg">
@@ -342,15 +417,15 @@
                         <!-- [ADD NEW RECIPIENT SECTION] -->
                         <details id="add-new-recipient-container" class="glass p-md" style="border: 1px solid var(--teal); border-radius: 12px;">
                             <summary class="text-teal flex-align-center gap-sm cursor-pointer" style="list-style: none; outline: none;">
-                                <span class="material-icons">person_add</span>
-                                <span class="font-bold">Agregar Nuevo Destinatario</span>
+                                <span class="material-icons" id="manage-form-icon">person_add</span>
+                                <span class="font-bold" id="manage-form-title">Agregar Nuevo Destinatario</span>
                                 <span class="material-icons ml-auto" style="transition: transform 0.3s;">expand_more</span>
                             </summary>
                             
                             <div class="mt-lg">
                                 <div class="mb-lg">
                                     <span class="text-teal font-bold mb-xs block">País Destino</span>
-                                    <select id="new-recipient-country" class="premium-select" onchange="toggleRecipientCountry()">
+                                    <select id="manage-recipient-country" class="premium-select" onchange="toggleRecipientCountry('manage')">
                                         <option value="">Seleccione un país...</option>
                                         <option value="ves">Venezuela</option>
                                         <option value="cop">Colombia</option>
@@ -363,211 +438,183 @@
 
                                 <div id="general-recipient-container" class="mb-md">
                                     <span class="text-teal font-bold mb-xs block">Nombre del Destinatario (Recibe)</span>
-                                    <input type="text" id="recipient-name" class="premium-input" placeholder="Ej: Juan Perez">
+                                    <input type="text" id="manage-recipient-name" class="premium-input" placeholder="Ej: Juan Perez">
                                 </div>
 
-                                <div id="ves-fields" style="display:none;" class="form-grid">
+                                <div id="manage-ves-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span class="text-teal">Tipo de Envío a Venezuela</span>
                                         <div class="ves-type-selector">
-                                            <button type="button" id="ves-btn-mobile" class="ves-type-btn-active"
-                                                onclick="selectVesType('mobile')">
+                                            <button type="button" id="manage-ves-btn-mobile" class="ves-type-btn-active"
+                                                onclick="selectVesType('mobile', 'manage')">
                                                 <span class="material-icons ves-type-icon">smartphone</span>
                                                 Pago Móvil
                                             </button>
-                                            <button type="button" id="ves-btn-transfer" class="ves-type-btn-inactive"
-                                                onclick="selectVesType('transfer')">
+                                            <button type="button" id="manage-ves-btn-transfer" class="ves-type-btn-inactive"
+                                                onclick="selectVesType('transfer', 'manage')">
                                                 <span class="material-icons ves-type-icon">account_balance</span>
                                                 Transferencia
                                             </button>
                                         </div>
-                                        <input type="hidden" id="ves-type" value="mobile">
-                                    </div>
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="ves-name" class="premium-input" placeholder="Ej: Juan Perez"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
+                                        <input type="hidden" id="manage-ves-type" value="mobile">
                                     </div>
                                     <div class="col-span-2">
                                         <span>Cédula de Identidad</span>
                                         <div class="ves-id-row">
-                                            <select id="ves-id-prefix" class="premium-select ves-id-prefix-select">
+                                            <select id="manage-ves-id-prefix" class="premium-select ves-id-prefix-select">
                                                 <option value="V">V</option>
                                                 <option value="J">J</option>
                                                 <option value="E">E</option>
                                             </select>
-                                            <input type="text" id="ves-id" class="premium-input ves-id-input" placeholder="Ej: 27123456"
+                                            <input type="text" id="manage-ves-id" class="premium-input ves-id-input" placeholder="Ej: 27123456"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                         </div>
                                     </div>
                                     <div class="col-span-2">
                                         <span>Banco Destino</span>
-                                        <select id="ves-bank" class="premium-select" onchange="updateTransferLogo('ves')">
+                                        <select id="manage-ves-bank" class="premium-select" onchange="updateTransferLogo('ves', 'manage')">
                                             <option value="">Seleccione un Banco</option>
-                                            <option value="Banesco">Banesco</option>
-                                            <option value="Banco de Venezuela">Banco de Venezuela</option>
-                                            <option value="Mercantil">Mercantil</option>
-                                            <option value="BBVA Provincial">BBVA Provincial</option>
-                                            <option value="BNC">BNC (Nacional de Crédito)</option>
-                                            <option value="Bancamiga">Bancamiga</option>
-                                            <option value="Bancaribe">Bancaribe</option>
-                                            <option value="Banco del Tesoro">Banco del Tesoro</option>
-                                            <option value="Banco Exterior">Banco Exterior</option>
-                                            <option value="Banco Plaza">Banco Plaza</option>
-                                            <option value="BFC">BFC (Fondo Común)</option>
-                                            <option value="Banco Activo">Banco Activo</option>
-                                            <option value="Banplus">Banplus</option>
-                                            <option value="100% Banco">100% Banco</option>
-                                            <option value="Banco Caroní">Banco Caroní</option>
-                                            <option value="Banco Agrícola">Banco Agrícola</option>
-                                            <option value="Banco Bicentenario">Banco Bicentenario</option>
-                                            <option value="Banfanb">Banfanb</option>
+                                            <option value="0102 - BANCO DE VENEZUELA">0102 - BANCO DE VENEZUELA</option>
+                                            <option value="0105 - MERCANTIL BANCO">0105 - MERCANTIL BANCO</option>
+                                            <option value="0108 - PROVINCIAL">0108 - PROVINCIAL</option>
+                                            <option value="0114 - BANCO DEL CARIBE">0114 - BANCO DEL CARIBE</option>
+                                            <option value="0115 - BAN EXTERIOR">0115 - BAN EXTERIOR</option>
+                                            <option value="0128 - BANCO CARONI">0128 - BANCO CARONI</option>
+                                            <option value="0134 - BANESCO">0134 - BANESCO</option>
+                                            <option value="0151 - BFC">0151 - BFC</option>
+                                            <option value="0156 - 100%BANCO">0156 - 100%BANCO</option>
+                                            <option value="0157 - DELSUR">0157 - DELSUR</option>
+                                            <option value="0163 - BANCO DEL TESORO">0163 - BANCO DEL TESORO</option>
+                                            <option value="0166 - BANCO AGRICOLA">0166 - BANCO AGRICOLA</option>
+                                            <option value="0168 - BANCRECER">0168 - BANCRECER</option>
+                                            <option value="0169 - MIBANCO">0169 - MIBANCO</option>
+                                            <option value="0171 - BANCO ACTIVO">0171 - BANCO ACTIVO</option>
+                                            <option value="0172 - BANCAMIGA">0172 - BANCAMIGA</option>
+                                            <option value="0174 - BANPLUS">0174 - BANPLUS</option>
+                                            <option value="0175 - BICENTENARIO">0175 - BICENTENARIO</option>
+                                            <option value="0177 - BANFANB">0177 - BANFANB</option>
+                                            <option value="0191 - BNC">0191 - BNC</option>
                                         </select>
-                                        <div id="ves-logo-preview" class="bank-preview-box" style="display: none;">
+                                        <div id="manage-ves-logo-preview" class="bank-preview-box" style="display: none;">
                                             <img src="" class="bank-preview-img bank-logo">
                                             <small class="text-teal">Banco Destino</small>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
-                                        <span id="ves-account-label">Número de Teléfono (Pago Móvil)</span>
-                                        <input type="text" id="ves-account" class="premium-input" maxlength="11"
+                                        <span id="manage-ves-account-label">Número de Teléfono (Pago Móvil)</span>
+                                        <input type="text" id="manage-ves-account" class="premium-input" maxlength="20"
                                             placeholder="Ej: 04123456789"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                 </div>
 
-                                <div id="cop-fields" style="display:none;" class="form-grid">
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="cop-name" class="premium-input" placeholder="Ej: Juan Perez"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
-                                    </div>
+                                <div id="manage-cop-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span>Tipo de Documento</span>
-                                        <select id="cop-doc-type" class="premium-select">
+                                        <select id="manage-cop-doc-type" class="premium-select">
                                             <option value="CC">Cédula de Ciudadanía (CC)</option>
                                             <option value="PPT">Permiso de permanencia temporal (PPT)</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2">
                                         <span>Número de Documento</span>
-                                        <input type="text" id="cop-id" class="premium-input" placeholder="Ej: 12345678"
+                                        <input type="text" id="manage-cop-id" class="premium-input" placeholder="Ej: 12345678"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="col-span-2">
                                         <span>Método de Pago</span>
-                                        <select id="cop-bank" class="premium-select"
-                                            onchange="toggleCopType(); updateTransferLogo('cop')">
+                                        <select id="manage-cop-bank" class="premium-select"
+                                            onchange="toggleCopType('manage'); updateTransferLogo('cop', 'manage')">
                                             <option value="Bancolombia">Bancolombia</option>
                                             <option value="Nequi">Nequi</option>
                                         </select>
-                                        <div id="cop-logo-preview" class="bank-preview-box" style="display: flex;">
+                                        <div id="manage-cop-logo-preview" class="bank-preview-box" style="display: flex;">
                                             <img src="" class="bank-preview-img bank-logo">
                                             <small class="text-teal">Banco Destino</small>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
-                                        <span id="cop-account-label">Número de Cuenta</span>
-                                        <input type="text" id="cop-account" class="premium-input" placeholder=""
+                                        <span id="manage-cop-account-label">Número de Cuenta</span>
+                                        <input type="text" id="manage-cop-account" class="premium-input" placeholder=""
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                 </div>
 
-                                <div id="pen-fields" style="display:none;" class="form-grid">
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="pen-name" class="premium-input" placeholder="Ej: Maria Lopez"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
-                                    </div>
+                                <div id="manage-pen-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span>Método de Pago</span>
-                                        <select id="pen-method" class="premium-select" onchange="togglePenType()">
+                                        <select id="manage-pen-method" class="premium-select" onchange="togglePenType('manage')">
                                             <option value="Yape">Yape</option>
                                             <option value="Plin">Plin</option>
                                             <option value="Banco">Banco</option>
                                         </select>
                                     </div>
-                                    <div id="pen-bank-container" style="display:none;" class="col-span-2">
+                                    <div id="manage-pen-bank-container" style="display:none;" class="col-span-2">
                                         <span>Banco Destino</span>
-                                        <select id="pen-bank" class="premium-select" onchange="updateTransferLogo('pen')">
+                                        <select id="manage-pen-bank" class="premium-select" onchange="updateTransferLogo('pen', 'manage')">
                                             <option value="BCP">Credit Bank of Perú (BCP)</option>
                                             <option value="Interbank">Interbank</option>
                                         </select>
-                                        <div id="pen-logo-preview" class="bank-preview-box" style="display: flex;">
+                                        <div id="manage-pen-logo-preview" class="bank-preview-box" style="display: flex;">
                                             <img src="" class="bank-preview-img bank-logo">
                                             <small class="text-teal">Banco Destino</small>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
-                                        <span id="pen-account-label">Número de Teléfono</span>
-                                        <input type="text" id="pen-account" class="premium-input" placeholder=""
+                                        <span id="manage-pen-account-label">Número de Teléfono</span>
+                                        <input type="text" id="manage-pen-account" class="premium-input" placeholder=""
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                 </div>
 
-                                <div id="usa-fields" style="display:none;" class="form-grid">
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="usa-name" class="premium-input" placeholder="Ej: John Doe"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
-                                    </div>
+                                <div id="manage-usa-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span>Tipo de Zelle</span>
-                                        <select id="usa-zelle-type" class="premium-select" onchange="toggleUsaType()">
+                                        <select id="manage-usa-zelle-type" class="premium-select" onchange="toggleUsaType('manage')">
                                             <option value="phone">Número de Teléfono</option>
                                             <option value="email">Correo Electrónico</option>
                                         </select>
                                     </div>
                                     <div class="col-span-2">
-                                        <span id="usa-zelle-label">Número de Teléfono (Zelle)</span>
-                                        <input type="text" id="usa-zelle-data" class="premium-input"
-                                            placeholder="Ej: +1234567890" oninput="handleUsaZelleInput(this)">
+                                        <span id="manage-usa-zelle-label">Número de Teléfono (Zelle)</span>
+                                        <input type="text" id="manage-usa-zelle-data" class="premium-input"
+                                            placeholder="Ej: +1234567890" oninput="handleUsaZelleInput(this, 'manage')">
                                     </div>
                                 </div>
 
-                                <div id="ecs-fields" style="display:none;" class="form-grid">
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="ecs-name" class="premium-input" placeholder="Ej: Robert Smith"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
-                                    </div>
+                                <div id="manage-ecs-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span>Número de Cédula</span>
-                                        <input type="text" id="ecs-id" class="premium-input" placeholder="Ej: 1712345678"
+                                        <input type="text" id="manage-ecs-id" class="premium-input" placeholder="Ej: 1712345678"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <div class="col-span-2">
                                         <span>Banco Destino</span>
-                                        <select id="ecs-bank" class="premium-select" onchange="updateTransferLogo('ecs')">
+                                        <select id="manage-ecs-bank" class="premium-select" onchange="updateTransferLogo('ecs', 'manage')">
                                             <option value="Banco Pichincha">Banco Pichincha</option>
                                             <option value="Banco Guayaquil">Banco Guayaquil</option>
                                         </select>
-                                        <div id="ecs-logo-preview" class="bank-preview-box" style="display: flex;">
+                                        <div id="manage-ecs-logo-preview" class="bank-preview-box" style="display: flex;">
                                             <img src="" class="bank-preview-img bank-logo">
                                             <small class="text-teal">Banco Destino</small>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
                                         <span>Número de Cuenta</span>
-                                        <input type="text" id="ecs-account" class="premium-input" placeholder="Ej: 2100123456"
+                                        <input type="text" id="manage-ecs-account" class="premium-input" placeholder="Ej: 2100123456"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                 </div>
 
-                                <div id="clp-fields" style="display:none;" class="form-grid">
-                                    <div class="col-span-2">
-                                        <span class="text-teal">Nombre del Beneficiario</span>
-                                        <input type="text" id="clp-name" class="premium-input" placeholder="Ej: Juan Pérez"
-                                            oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
-                                    </div>
+                                <div id="manage-clp-fields" style="display:none;" class="form-grid">
                                     <div class="col-span-2">
                                         <span>RUT del Beneficiario</span>
-                                        <input type="text" id="clp-id" class="premium-input" placeholder="Ej: 12.345.678-9"
+                                        <input type="text" id="manage-clp-id" class="premium-input" placeholder="Ej: 12.345.678-9"
                                             oninput="this.value = this.value.replace(/[^0-9kK.-]/g, '')">
                                     </div>
                                     <div class="col-span-2">
                                         <span>Banco Destino</span>
-                                        <select id="clp-bank" class="premium-select" onchange="updateTransferLogo('clp')">
+                                        <select id="manage-clp-bank" class="premium-select" onchange="updateTransferLogo('clp', 'manage')">
                                             <option value="">Selecciona Banco</option>
                                             <option value="Banco Estado">Banco Estado / Cuenta RUT</option>
                                             <option value="Santander">Santander</option>
@@ -584,14 +631,14 @@
                                             <option value="Prepago Los Heroes">Prepago Los Heroes</option>
                                             <option value="Prepago Coopeuch">Prepago Coopeuch</option>
                                         </select>
-                                        <div id="clp-logo-preview" class="bank-preview-box" style="display: flex;">
+                                        <div id="manage-clp-logo-preview" class="bank-preview-box" style="display: flex;">
                                             <img src="" class="bank-preview-img bank-logo">
                                             <small class="text-teal">Banco Destino</small>
                                         </div>
                                     </div>
                                     <div class="col-span-2">
                                         <span>Tipo de Cuenta</span>
-                                        <select id="clp-type" class="premium-select">
+                                        <select id="manage-clp-type" class="premium-select">
                                             <option value="Cuenta Vista">Cuenta Vista / RUT</option>
                                             <option value="Cuenta Corriente">Cuenta Corriente</option>
                                             <option value="Cuenta de Ahorro">Cuenta de Ahorro</option>
@@ -599,12 +646,15 @@
                                     </div>
                                     <div class="col-span-2">
                                         <span>Número de Cuenta</span>
-                                        <input type="text" id="clp-account" class="premium-input" placeholder="Ej: 123456789"
+                                        <input type="text" id="manage-clp-account" class="premium-input" placeholder="Ej: 123456789"
                                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                 </div>
                                 
-                                <button class="btn-primary w-full mt-lg" onclick="saveNewBeneficiaryFromView()">Guardar y Usar</button>
+                                <div class="flex-align-center gap-sm mt-lg" style="width:100%;">
+                                    <button id="manage-save-btn" class="btn-primary flex-1" onclick="saveNewBeneficiaryFromView()">Guardar y Usar</button>
+                                    <button id="manage-cancel-edit-btn" class="btn-signin" style="display:none; white-space:nowrap;" onclick="cancelEditBeneficiary()"><span class="material-icons" style="font-size:16px; vertical-align:middle;">close</span> Cancelar</button>
+                                </div>
                             </div>
                         </details>
 
@@ -1137,8 +1187,8 @@
     <div id="login-modal" class="modal-overlay" style="display:none;">
         <div class="modal-content glass text-center login-modal-content">
             <img src="assets/img/logo-enmssell.webp" alt="Enmsell Logo" class="logo-hero-img mb-md login-logo-img">
-            <h2 class="text-gradient-gold font-black">Bienvenido a Enmsell Global</h2>
-            <p class="login-tagline-gold">Inicia sesión para transferir con seguridad y elegancia</p>
+            <h2 class="text-gradient-gold font-black" id="modal-main-title">Iniciar Sesión</h2>
+            <p class="login-tagline-gold" id="modal-main-subtitle">Ingresa tu número para entrar a tu billetera</p>
 
             <div id="login-options-container">
                 <button class="btn-google mb-md" onclick="handleGoogleLogin()">
@@ -1154,7 +1204,7 @@
                 </div>
 
                 <div id="phone-login-section">
-                    <div class="login-phone-row">
+                    <div class="login-phone-row mb-md">
                         <select id="phone-country-select" class="premium-select login-phone-select">
                             <option value="+56">🇨🇱 Chile +56</option>
                             <option value="+58">🇻🇪 Venezuela +58</option>
@@ -1166,19 +1216,54 @@
                         <input type="tel" id="phone-login-input" class="premium-input login-phone-input" placeholder="Ej: 912345678"
                             oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
-                    <button id="btn-send-sms" class="btn-primary login-sms-btn" onclick="handlePhoneSendCode()">
-                        <span class="material-icons login-sms-icon">sms</span>
-                        Enviar Código SMS
+                    
+                    <div id="login-password-container" style="text-align:left;">
+                        <div style="position: relative;">
+                            <input type="password" id="login-password-input" class="premium-input w-full mb-sm" placeholder="Contraseña" style="padding-right: 40px;">
+                            <span class="material-icons" id="toggle-pwd-login" onclick="togglePasswordVisibility('login-password-input', 'toggle-pwd-login')" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 20px;">visibility_off</span>
+                        </div>
+                        <div id="login-error-msg" style="color: var(--error, #e74c3c); font-size: 0.85rem; margin-bottom: 0.5rem; display: none;"></div>
+                        <div class="text-right mb-md">
+                            <a href="javascript:void(0)" onclick="handleForgotPassword()" class="text-gold" style="font-size:0.85rem; text-decoration:underline;">¿Olvidé mi contraseña?</a>
+                        </div>
+                    </div>
+
+                    <button id="btn-login-main" class="btn-primary w-full mb-md" onclick="submitAuthAction()">
+                        Iniciar sesión
                     </button>
+                    
+                    <div id="register-hint" class="text-center">
+                        <span style="color: var(--text-muted); font-size:0.9rem;">¿Nuevos usuarios?</span>
+                        <a href="javascript:void(0)" onclick="toggleRegisterMode()" class="text-gold" style="font-size:0.9rem; text-decoration:underline; font-weight:bold; margin-left: 5px;">Registrarse</a>
+                    </div>
+                    <div id="login-hint" class="text-center" style="display:none;">
+                        <span style="color: var(--text-muted); font-size:0.9rem;">¿Ya tienes cuenta?</span>
+                        <a href="javascript:void(0)" onclick="toggleLoginMode()" class="text-gold" style="font-size:0.9rem; text-decoration:underline; font-weight:bold; margin-left: 5px;">Iniciar sesión</a>
+                    </div>
                 </div>
 
-                <div id="phone-otp-section" class="login-otp-section">
+                <div id="phone-otp-section" class="login-otp-section" style="display:none;">
                     <p class="login-otp-hint">Ingresa el código de 6
                         dígitos enviado a tu teléfono:</p>
-                    <input type="text" id="phone-otp-input" class="premium-input login-otp-input" placeholder="123456" maxlength="6"
+                    <input type="text" id="phone-otp-input" class="premium-input login-otp-input mb-md" placeholder="123456" maxlength="6"
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     <button class="btn-primary login-verify-btn" onclick="handlePhoneVerifyCode()">
                         Verificar Código
+                    </button>
+                </div>
+
+                <div id="create-password-section" style="display:none; text-align:left;">
+                    <p class="login-otp-hint text-center pb-2">Crea una contraseña (mín. 6 caracteres):</p>
+                    <div style="position: relative;">
+                        <input type="password" id="create-password-input" class="premium-input w-full mb-md" placeholder="Nueva contraseña" style="padding-right: 40px;">
+                        <span class="material-icons" id="toggle-pwd-create1" onclick="togglePasswordVisibility('create-password-input', 'toggle-pwd-create1')" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 20px;">visibility_off</span>
+                    </div>
+                    <div style="position: relative;">
+                        <input type="password" id="create-password-confirm" class="premium-input w-full mb-md" placeholder="Confirmar contraseña" style="padding-right: 40px;">
+                        <span class="material-icons" id="toggle-pwd-create2" onclick="togglePasswordVisibility('create-password-confirm', 'toggle-pwd-create2')" style="position: absolute; right: 10px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 20px;">visibility_off</span>
+                    </div>
+                    <button id="btn-create-password" class="btn-primary w-full mb-md" onclick="handleCreatePassword()">
+                        Guardar Contraseña
                     </button>
                 </div>
 
@@ -1347,15 +1432,15 @@
     
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js"></script>
-    <script src="js/config.js?v=10.7"></script><!-- ← Constantes globales: cargar primero, sin defer -->
-    <script defer src="js/api.js?v=10.7"></script>
-    <script defer src="js/auth.js?v=10.7"></script>
-    <script defer src="js/app.js?v=10.7"></script>
-    <script defer src="js/calculator.js?v=10.7"></script>
-    <script defer src="js/transactions.js?v=10.7"></script>
-    <script defer src="js/beneficiaries.js?v=10.7"></script>
-    <script defer src="js/ui.js?v=10.7"></script>
-    <script defer src="js/tracking.js?v=10.7"></script>
+    <script src="js/config.js?v=10.8"></script><!-- ← Constantes globales: cargar primero, sin defer -->
+    <script defer src="js/api.js?v=10.8"></script>
+    <script defer src="js/auth.js?v=10.8"></script>
+    <script defer src="js/app.js?v=10.8"></script>
+    <script defer src="js/calculator.js?v=10.8"></script>
+    <script defer src="js/transactions.js?v=10.8"></script>
+    <script defer src="js/beneficiaries.js?v=10.8"></script>
+    <script defer src="js/ui.js?v=10.8"></script>
+    <script defer src="js/tracking.js?v=10.8"></script>
 
 </body>
 

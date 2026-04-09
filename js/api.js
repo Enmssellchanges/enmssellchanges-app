@@ -84,24 +84,30 @@ function sendUserNotification(tx, status) {
 }
 
 /**
- * Plays the notification sound for new alerts.
- * @param {boolean} silent - If true, it attempts a silent play to unlock audio context.
+ * Plays the notification sound for new alerts using Web Audio API.
+ * Delegates to playNotificationSoundByPreference (defined in ui.js).
  */
-function playNotificationSound(silent = false) {
-    const sound = document.getElementById('notification-sound');
-    if (!sound) return;
+async function playNotificationSound(silent = false) {
+    if (silent) return; // Ya no necesitamos desbloquear con elemento <audio>
 
-    if (silent) {
-        sound.muted = true;
-        sound.play().then(() => {
-            sound.pause();
-            sound.muted = false;
-        }).catch(() => { });
-        return;
+    // Leer preferencia de localStorage (sincrónico, sin consulta a Firestore)
+    let soundPreference = localStorage.getItem('notif-sound-pref') || 'default';
+
+    // Intentar sincronizar con Firestore si el usuario está autenticado
+    if (auth && auth.currentUser) {
+        try {
+            const doc = await db.collection('users').doc(auth.currentUser.uid).get();
+            if (doc.exists && doc.data().notificationSound) {
+                soundPreference = doc.data().notificationSound;
+                localStorage.setItem('notif-sound-pref', soundPreference);
+            }
+        } catch (e) { /* usa el valor en localStorage */ }
     }
 
-    sound.currentTime = 0;
-    sound.play().catch(e => console.warn("Interacción requerida para sonido:", e));
+    // Delegar al motor de audio definido en ui.js
+    if (typeof playNotificationSoundByPreference === 'function') {
+        playNotificationSoundByPreference(soundPreference);
+    }
 }
 
 /**

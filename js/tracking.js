@@ -141,19 +141,19 @@ function retryTransfer() {
   if (currentTransfer.vesData) {
     document.getElementById('ves-type').value = currentTransfer.vesData.type || 'transfer';
     toggleVesType();
-    document.getElementById('ves-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
     document.getElementById('ves-id').value = currentTransfer.vesData.id;
     document.getElementById('ves-bank').value = currentTransfer.vesData.bank;
     document.getElementById('ves-account').value = currentTransfer.vesData.account;
   } else if (currentTransfer.copData) {
-    document.getElementById('cop-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
     document.getElementById('cop-doc-type').value = currentTransfer.copData.docType;
     document.getElementById('cop-id').value = currentTransfer.copData.id;
     document.getElementById('cop-bank').value = currentTransfer.copData.bank;
     toggleCopType();
     document.getElementById('cop-account').value = currentTransfer.copData.account;
   } else if (currentTransfer.penData) {
-    document.getElementById('pen-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
     document.getElementById('pen-method').value = currentTransfer.penData.method;
     togglePenType();
     if (currentTransfer.penData.method === 'Banco') {
@@ -161,17 +161,17 @@ function retryTransfer() {
     }
     document.getElementById('pen-account').value = currentTransfer.penData.account;
   } else if (currentTransfer.usaData) {
-    document.getElementById('usa-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
     document.getElementById('usa-zelle-type').value = currentTransfer.usaData.type;
     toggleUsaType();
     document.getElementById('usa-zelle-data').value = currentTransfer.usaData.data;
   } else if (currentTransfer.ecsData) {
-    document.getElementById('ecs-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
     document.getElementById('ecs-id').value = currentTransfer.ecsData.id;
     document.getElementById('ecs-bank').value = currentTransfer.ecsData.bank;
     document.getElementById('ecs-account').value = currentTransfer.ecsData.account;
   } else {
-    document.getElementById('recipient-name').value = currentTransfer.name;
+    document.getElementById('send-recipient-name').value = currentTransfer.name;
   }
   const amountVal = currentTransfer.amount.split(' ')[0].replace(/,/g, '');
   document.getElementById('send-amount').value = amountVal;

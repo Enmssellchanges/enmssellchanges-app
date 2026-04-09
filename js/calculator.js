@@ -217,12 +217,12 @@ function calculate(reverse = false) {
   if (confirmBtn) confirmBtn.disabled = isTooLow;
 
   // Toggle Venezuela/Colombia/Peru/USA/Ecuador Fields
-  const vesFields = document.getElementById('ves-fields');
-  const copFields = document.getElementById('cop-fields');
-  const penFields = document.getElementById('pen-fields');
-  const usaFields = document.getElementById('usa-fields');
-  const ecsFields = document.getElementById('ecs-fields');
-  const generalFields = document.getElementById('general-recipient-container');
+  const vesFields = document.getElementById('send-ves-fields');
+  const copFields = document.getElementById('send-cop-fields');
+  const penFields = document.getElementById('send-pen-fields');
+  const usaFields = document.getElementById('send-usa-fields');
+  const ecsFields = document.getElementById('send-ecs-fields');
+  const clpFields = document.getElementById('send-clp-fields');
 
   // Hide all first
   if (vesFields) vesFields.style.display = 'none';
@@ -230,28 +230,20 @@ function calculate(reverse = false) {
   if (penFields) penFields.style.display = 'none';
   if (usaFields) usaFields.style.display = 'none';
   if (ecsFields) ecsFields.style.display = 'none';
-  const clpFields = document.getElementById('clp-fields');
   if (clpFields) clpFields.style.display = 'none';
-  if (generalFields) generalFields.style.display = 'block';
+
   if (destCountry.code === 'VES') {
     if (vesFields) vesFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   } else if (destCountry.code === 'COP') {
     if (copFields) copFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   } else if (destCountry.code === 'PEN') {
     if (penFields) penFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   } else if (destCountry.code === 'USD') {
     if (usaFields) usaFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   } else if (destCountry.code === 'ECS') {
     if (ecsFields) ecsFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   } else if (destCountry.code === 'CLP') {
-    const clpFields = document.getElementById('clp-fields');
     if (clpFields) clpFields.style.display = 'grid';
-    if (generalFields) generalFields.style.display = 'none';
   }
   renderUserAccounts();
   const countryCodes = ['VES', 'COP', 'PEN', 'USD', 'ECS', 'CLP'];

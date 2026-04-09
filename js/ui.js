@@ -100,7 +100,7 @@ function showView(view) {
     // Request interaction for audio if needed
     playNotificationSound(true); // Silent play to unlock audio
   }
-  if (view === 'send') calculate(); // Standard refresh for send view
+
 
   // Scroll to top on view change
   window.scrollTo({
@@ -117,26 +117,38 @@ function showView(view) {
  *
  * @param {'mobile'|'transfer'} type - Tipo de cuenta venezolana seleccionada.
  */
-function selectVesType(type) {
+function selectVesType(type, context = 'send', clearValue = true) {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  
   // Update hidden input value
-  const typeInput = document.getElementById('ves-type');
+  const typeInput = document.getElementById(`${prefix}ves-type`);
   if (typeInput) typeInput.value = type;
 
   // Update button styles
-  const btnMobile = document.getElementById('ves-btn-mobile');
-  const btnTransfer = document.getElementById('ves-btn-transfer');
+  const btnMobile = document.getElementById(`${prefix}ves-btn-mobile`);
+  const btnTransfer = document.getElementById(`${prefix}ves-btn-transfer`);
   if (btnMobile && btnTransfer) {
     if (type === 'mobile') {
+      btnMobile.classList.add('ves-type-btn-active');
+      btnMobile.classList.remove('ves-type-btn-inactive');
       btnMobile.style.border = '2px solid var(--gold)';
       btnMobile.style.background = 'rgba(204, 163, 83, 0.15)';
       btnMobile.style.color = 'var(--gold)';
+
+      btnTransfer.classList.add('ves-type-btn-inactive');
+      btnTransfer.classList.remove('ves-type-btn-active');
       btnTransfer.style.border = '2px solid rgba(255,255,255,0.1)';
       btnTransfer.style.background = 'rgba(255,255,255,0.03)';
       btnTransfer.style.color = 'var(--text-muted)';
     } else {
+      btnTransfer.classList.add('ves-type-btn-active');
+      btnTransfer.classList.remove('ves-type-btn-inactive');
       btnTransfer.style.border = '2px solid var(--gold)';
       btnTransfer.style.background = 'rgba(204, 163, 83, 0.15)';
       btnTransfer.style.color = 'var(--gold)';
+
+      btnMobile.classList.add('ves-type-btn-inactive');
+      btnMobile.classList.remove('ves-type-btn-active');
       btnMobile.style.border = '2px solid rgba(255,255,255,0.1)';
       btnMobile.style.background = 'rgba(255,255,255,0.03)';
       btnMobile.style.color = 'var(--text-muted)';
@@ -144,12 +156,12 @@ function selectVesType(type) {
   }
 
   // Update account field label, placeholder and maxlength
-  const accountLabel = document.getElementById('ves-account-label');
-  const accountInput = document.getElementById('ves-account');
+  const accountLabel = document.getElementById(`${prefix}ves-account-label`);
+  const accountInput = document.getElementById(`${prefix}ves-account`);
   if (!accountLabel || !accountInput) return;
 
-  // Clear field when switching type to avoid invalid data
-  accountInput.value = '';
+  // Clear field when switching type to avoid invalid data (if explicitly requested)
+  if (clearValue) accountInput.value = '';
 
   if (type === 'mobile') {
     accountLabel.innerText = "Número de Teléfono (Pago Móvil)";
@@ -165,17 +177,18 @@ function selectVesType(type) {
 /**
  * Muestra u oculta los campos de destinatario según el país seleccionado.
  */
-function toggleRecipientCountry() {
-  const country = document.getElementById('new-recipient-country').value;
+function toggleRecipientCountry(context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const country = document.getElementById(`${prefix}recipient-country`).value;
   const countries = ['ves', 'cop', 'pen', 'clp', 'usa', 'ecs'];
 
   countries.forEach(c => {
-    const el = document.getElementById(`${c}-fields`);
+    const el = document.getElementById(`${prefix}${c}-fields`);
     if (el) el.style.display = 'none';
   });
 
   if (country) {
-    const selectedEl = document.getElementById(`${country}-fields`);
+    const selectedEl = document.getElementById(`${prefix}${country}-fields`);
     if (selectedEl) selectedEl.style.display = 'grid'; 
   }
 }
@@ -184,10 +197,11 @@ function toggleRecipientCountry() {
  * Adapta el campo de cuenta colombiana según si el banco elegido es Nequi o Bancolombia.
  * Cambia label, placeholder y maxLength del input.
  */
-function toggleCopType() {
-  const bank = document.getElementById('cop-bank').value;
-  const accountLabel = document.getElementById('cop-account-label');
-  const accountInput = document.getElementById('cop-account');
+function toggleCopType(context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const bank = document.getElementById(`${prefix}cop-bank`).value;
+  const accountLabel = document.getElementById(`${prefix}cop-account-label`);
+  const accountInput = document.getElementById(`${prefix}cop-account`);
   if (!accountLabel || !accountInput) return;
   if (bank === 'Nequi') {
     accountLabel.innerText = "Número de Teléfono (Nequi)";
@@ -204,11 +218,12 @@ function toggleCopType() {
  * Adapta los campos de cuenta peruana según el método elegido (Banco, Yape, Plin).
  * Muestra/oculta el selector de banco y cambia el label del número.
  */
-function togglePenType() {
-  const method = document.getElementById('pen-method').value;
-  const bankContainer = document.getElementById('pen-bank-container');
-  const accountLabel = document.getElementById('pen-account-label');
-  const accountInput = document.getElementById('pen-account');
+function togglePenType(context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const method = document.getElementById(`${prefix}pen-method`).value;
+  const bankContainer = document.getElementById(`${prefix}pen-bank-container`);
+  const accountLabel = document.getElementById(`${prefix}pen-account-label`);
+  const accountInput = document.getElementById(`${prefix}pen-account`);
   if (!accountLabel || !accountInput || !bankContainer) return;
   if (method === 'Banco') {
     bankContainer.style.display = 'block';
@@ -225,10 +240,11 @@ function togglePenType() {
  * Adapta el campo Zelle según si se introduce teléfono o correo electrónico.
  * Limpia el valor actual al cambiar de tipo para evitar datos inconsistentes.
  */
-function toggleUsaType() {
-  const type = document.getElementById('usa-zelle-type').value;
-  const label = document.getElementById('usa-zelle-label');
-  const input = document.getElementById('usa-zelle-data');
+function toggleUsaType(context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const type = document.getElementById(`${prefix}usa-zelle-type`).value;
+  const label = document.getElementById(`${prefix}usa-zelle-label`);
+  const input = document.getElementById(`${prefix}usa-zelle-data`);
   if (!label || !input) return;
   input.value = ""; // Clear on change to avoid partial data
   if (type === 'phone') {
@@ -245,8 +261,9 @@ function toggleUsaType() {
  *
  * @param {HTMLInputElement} input - El elemento input que dispara el evento.
  */
-function handleUsaZelleInput(input) {
-  const type = document.getElementById('usa-zelle-type').value;
+function handleUsaZelleInput(input, context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const type = document.getElementById(`${prefix}usa-zelle-type`).value;
   if (type === 'phone') {
     input.value = input.value.replace(/[^0-9]/g, '');
   }
@@ -390,9 +407,10 @@ Email: ${email}`;
  *
  * @param {string} prefix - Prefijo del elemento DOM del formulario (ej: 'clp', 'cop').
  */
-function updateTransferLogo(prefix) {
-  const select = document.getElementById(`${prefix}-bank`);
-  const container = document.getElementById(`${prefix}-logo-preview`);
+function updateTransferLogo(pfx, context = 'send') {
+  const prefix = context === 'manage' ? 'manage-' : 'send-';
+  const select = document.getElementById(`${prefix}${pfx}-bank`);
+  const container = document.getElementById(`${prefix}${pfx}-logo-preview`);
   if (!select || !container) return;
   const bankName = select.value;
   const img = container.querySelector('img');
@@ -454,25 +472,52 @@ function getBankLogo(bankName) {
 }
 
 // Push Notifications Logic
-async function requestNotificationPermission() {
-  if (!messaging) return;
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === 'granted') {
-      const token = await messaging.getToken({
-        vapidKey: APP_CONSTANTS.FCM_VAPID_KEY
-      });
-      if (token && user) {
-        await db.collection('users').doc(user.uid).set({
-          fcmToken: token
-        }, {
-          merge: true
-        });
+async function handleNotificationBellClick() {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    await requestNotificationPermission();
+  }
+  if (typeof showView === 'function') {
+    showView('notifications');
+  }
+}
 
+async function requestNotificationPermission() {
+  let permission = 'default';
+
+  try {
+    if (typeof Notification !== 'undefined') {
+      permission = await Notification.requestPermission();
+    } else if (typeof messaging !== 'undefined' && typeof messaging.requestPermission === 'function') {
+      // Fallback legacy para entornos sin API Notification estándar
+      await messaging.requestPermission();
+      permission = 'granted';
+    } else {
+      console.warn('[Notificaciones] API de permisos no encontrada en este entorno.');
+      permission = 'unsupported';
+    }
+
+    if (permission === 'granted') {
+      if (typeof messaging !== 'undefined' && messaging) {
+        try {
+          const token = await messaging.getToken({
+            vapidKey: APP_CONSTANTS.FCM_VAPID_KEY
+          });
+          if (token && user) {
+            // Guardar en array para soportar múltiples dispositivos simultáneamente
+            await db.collection('users').doc(user.uid).set({
+              fcmTokens: firebase.firestore.FieldValue.arrayUnion(token),
+              // Mantener fcmToken por compatibilidad con código legacy
+              fcmToken: token
+            }, { merge: true });
+            console.log('[FCM] Token registrado para este dispositivo:', token.substring(0, 20) + '...');
+          }
+        } catch (fcmErr) {
+          console.warn('[FCM] No se pudo obtener el token:', fcmErr);
+        }
       }
     }
   } catch (err) {
-    console.error('Error getting notification permission:', err);
+    console.error('[Notificaciones] Error al solicitar permiso:', err);
   }
 }
 
@@ -770,5 +815,232 @@ function renderGlobalBankAccounts() {
             console.error("Error fetching bank accounts from more menu:", err);
             list.innerHTML = '<p style="color: var(--error); font-size: 0.8rem; text-align: center;">Error al cargar las cuentas.</p>';
         });
+    }
+}
+
+// --- NOTIFICATION SETTINGS MODAL ---
+function openNotificationSettingsModal() {
+    const modal = document.getElementById('notification-settings-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        updateNotificationSettingsUI();
+        loadNotificationSoundPreference();
+    }
+}
+
+function closeNotificationSettingsModal() {
+    const modal = document.getElementById('notification-settings-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+async function updateNotificationSettingsUI() {
+    try {
+        const body = document.getElementById('notif-settings-body');
+        if (!body) {
+            if (document.getElementById('notification-settings-modal')?.style.display === 'flex') {
+                setTimeout(updateNotificationSettingsUI, 300);
+            }
+            return;
+        }
+
+        let permission = 'default';
+        let isSupported = true;
+
+        if (typeof Notification !== 'undefined') {
+            permission = Notification.permission;
+        } else if ('serviceWorker' in navigator && 'PushManager' in window) {
+            // TWA support check
+            permission = 'default';
+        } else {
+            permission = 'unsupported';
+            isSupported = false;
+        }
+
+        let html = '';
+        if (permission === 'granted') {
+            html = `
+                <div style="text-align:center; padding: 0.5rem 0 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.6rem;">✅</div>
+                    <h4 style="color: var(--success); margin-bottom: 0.4rem;">Notificaciones Activas</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem;">Recibirás alertas en tiempo real sobre tus transferencias.</p>
+                    <button class="btn-signin w-full mt-md" style="background: rgba(16,185,129,0.1); color: var(--success);" onclick="triggerNotificationPermissionFromSettings()">
+                       <span class="material-icons">refresh</span> Actualizar Token
+                    </button>
+                </div>`;
+        } else if (permission === 'denied') {
+            html = `
+                <div style="text-align:center; padding: 0.5rem 0 0.5rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.6rem;">🔕</div>
+                    <h4 style="color: var(--error); margin-bottom: 0.5rem;">Notificaciones Bloqueadas</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom:1rem;">Habilítalas en los ajustes de tu navegador o sistema.</p>
+                    <button class="btn-primary w-full" onclick="triggerNotificationPermissionFromSettings()">
+                        <span class="material-icons">settings</span> Intentar Activar
+                    </button>
+                </div>`;
+        } else if (!isSupported) {
+             html = `
+                <div style="text-align:center; padding: 0.5rem 0 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.6rem;">⚠️</div>
+                    <h4 style="color: var(--error); margin-bottom: 0.5rem;">No Soportado</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem;">Tu dispositivo no parece soportar notificaciones push.</p>
+                </div>`;
+        } else {
+            // default
+            html = `
+                <div style="text-align:center; padding: 0.5rem 0 1rem;">
+                    <div style="font-size: 3rem; margin-bottom: 0.6rem;">🔔</div>
+                    <h4 style="color: var(--gold-light); margin-bottom: 0.5rem;">Activar Notificaciones</h4>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 1.2rem;">Recibe alertas instantáneas en tu móvil sobre tus transferencias.</p>
+                    <button class="btn-primary w-full" style="display:flex; align-items:center; justify-content:center; gap:8px;" onclick="triggerNotificationPermissionFromSettings()">
+                        <span class="material-icons">notifications_active</span> Activar Ahora
+                    </button>
+                </div>`;
+        }
+
+        body.innerHTML = html;
+
+    } catch (e) {
+        console.error('[Notif UI] Error en updateNotificationSettingsUI:', e);
+    }
+}
+
+async function triggerNotificationPermissionFromSettings() {
+    await requestNotificationPermission();
+    updateNotificationSettingsUI();
+}
+
+// Carga la preferencia de sonido guardada y la aplica a ambos selectores
+async function loadNotificationSoundPreference() {
+    const cached = localStorage.getItem('notif-sound-pref') || 'default';
+    const modalSelect = document.getElementById('notif-sound-select');
+    const profileSelect = document.getElementById('user-notification-sound');
+    if (modalSelect) modalSelect.value = cached;
+    if (profileSelect) profileSelect.value = cached;
+
+    if (typeof auth !== 'undefined' && auth.currentUser) {
+        try {
+            const doc = await db.collection('users').doc(auth.currentUser.uid).get();
+            if (doc.exists && doc.data().notificationSound) {
+                const sound = doc.data().notificationSound;
+                localStorage.setItem('notif-sound-pref', sound);
+                if (modalSelect) modalSelect.value = sound;
+                if (profileSelect) profileSelect.value = sound;
+            }
+        } catch (e) { /* silencioso */ }
+    }
+}
+
+// Guarda el tono seleccionado automáticamente (sin necesitar "Guardar perfil")
+async function saveNotificationSoundFromSettings(value) {
+    localStorage.setItem('notif-sound-pref', value);
+    // Sincronizar ambos selectores
+    const modalSelect = document.getElementById('notif-sound-select');
+    const profileSelect = document.getElementById('user-notification-sound');
+    if (modalSelect) modalSelect.value = value;
+    if (profileSelect) profileSelect.value = value;
+
+    if (typeof auth !== 'undefined' && auth.currentUser) {
+        try {
+            await db.collection('users').doc(auth.currentUser.uid).set(
+                { notificationSound: value },
+                { merge: true }
+            );
+        } catch (e) { console.warn('No se pudo guardar preferencia de sonido:', e); }
+    }
+}
+
+// ──────────────────────────────────────────────────────────────
+//  SOUND ENGINE — Web Audio API (sin dependencias externas)
+// ──────────────────────────────────────────────────────────────
+let _audioCtx = null;
+function _getAudioCtx() {
+    try {
+        if (!_audioCtx || _audioCtx.state === 'closed') {
+            _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (_audioCtx.state === 'suspended') {
+            _audioCtx.resume().catch(e => console.warn('[Audio] Resume failed:', e));
+        }
+    } catch (e) {
+        console.error('[Audio] Web Audio API not supported or initialization failed:', e);
+    }
+    return _audioCtx;
+}
+
+/**
+ * Reproduce una nota con oscilador.
+ * @param {number} freq   - Frecuencia en Hz
+ * @param {number} start  - Tiempo de inicio (s) relativo al contexto
+ * @param {number} dur    - Duración (s)
+ * @param {string} type   - Tipo de onda: sine|triangle|square|sawtooth
+ * @param {number} gain   - Volumen (0–1)
+ */
+function _playTone(ctx, freq, start, dur, type = 'sine', gain = 0.4) {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    osc.connect(env);
+    env.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, start);
+    env.gain.setValueAtTime(0, start);
+    env.gain.linearRampToValueAtTime(gain, start + 0.01);
+    env.gain.exponentialRampToValueAtTime(0.001, start + dur);
+    osc.start(start);
+    osc.stop(start + dur);
+}
+
+/** 💰 Transacción Exitosa — arpeggio ascendente tipo "pago" */
+function _soundTransaction() {
+    const ctx = _getAudioCtx();
+    const t = ctx.currentTime;
+    _playTone(ctx, 523.25, t,        0.18, 'sine',     0.45); // Do5
+    _playTone(ctx, 659.25, t + 0.12, 0.18, 'sine',     0.45); // Mi5
+    _playTone(ctx, 783.99, t + 0.24, 0.28, 'sine',     0.45); // Sol5
+    _playTone(ctx, 1046.5, t + 0.38, 0.40, 'triangle', 0.35); // Do6 (brillo)
+}
+
+/** 🔔 Campana Elite — nota larga con armónico */
+function _soundBell() {
+    const ctx = _getAudioCtx();
+    const t = ctx.currentTime;
+    _playTone(ctx, 880,  t,        0.60, 'sine',     0.40); // La5
+    _playTone(ctx, 1760, t,        0.40, 'sine',     0.15); // La6 (armónico)
+    _playTone(ctx, 880,  t + 0.65, 0.50, 'sine',     0.30); // eco
+}
+
+/** ✨ Notificación Premium — doble tono suave ascendente */
+function _soundPremium() {
+    const ctx = _getAudioCtx();
+    const t = ctx.currentTime;
+    _playTone(ctx, 698.46, t,        0.25, 'sine', 0.35); // Fa5
+    _playTone(ctx, 880,    t + 0.22, 0.35, 'sine', 0.40); // La5
+}
+
+const _soundFns = {
+    default: _soundTransaction,
+    bell:    _soundBell,
+    premium: _soundPremium
+};
+
+/** Reproduce el tono seleccionado en el modal de configuración */
+function previewSoundFromSettings() {
+    const select = document.getElementById('notif-sound-select');
+    const value  = select ? select.value : 'default';
+    if (value === 'none') return;
+    try {
+        (_soundFns[value] || _soundTransaction)();
+    } catch (e) {
+        console.warn('[Sound] Error reproduciendo tono:', e);
+    }
+}
+
+/** Reproduce el tono de notificación global (desde api.js y notificaciones) */
+function playNotificationSoundByPreference(preference) {
+    const key = preference || localStorage.getItem('notif-sound-pref') || 'default';
+    if (key === 'none') return;
+    try {
+        (_soundFns[key] || _soundTransaction)();
+    } catch (e) {
+        console.warn('[Sound] Error reproduciendo notificación:', e);
     }
 }

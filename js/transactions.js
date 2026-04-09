@@ -175,12 +175,12 @@ function handleContinueToDestinatarios() {
   }
 
   // Pre-seleccionar el país en el dropdown de nuevos destinatarios basándose en la Moneda de Destino
-  const countrySelect = document.getElementById('new-recipient-country');
+  const countrySelect = document.getElementById('manage-recipient-country');
   if (countrySelect && destCountry && destCountry.code) {
       const codeToValue = { 'VES': 'ves', 'COP': 'cop', 'PEN': 'pen', 'USD': 'usa', 'ECS': 'ecs', 'CLP': 'clp' };
       if (codeToValue[destCountry.code]) {
           countrySelect.value = codeToValue[destCountry.code];
-          if (typeof toggleRecipientCountry === 'function') toggleRecipientCountry();
+          if (typeof toggleRecipientCountry === 'function') toggleRecipientCountry('manage');
       }
   }
 
@@ -208,37 +208,53 @@ async function simulateTransfer() {
     ecsData = null,
     clpData = null;
   if (destCountry.code === 'VES') {
-    const vName = document.getElementById('ves-name').value;
-    const vId = document.getElementById('ves-id').value;
-    const vBank = document.getElementById('ves-bank').value;
-    const vAccount = document.getElementById('ves-account').value;
-    const vType = document.getElementById('ves-type').value;
-    if (!vName || !vId || !vBank || !vAccount) {
-      alert("Completa todos los datos de transferencia para Venezuela (Nombre, Cédula, Banco y Cuenta/Teléfono)");
+    const vesId = document.getElementById('send-ves-id').value;
+    const vesBank = document.getElementById('send-ves-bank').value;
+    const vesAccountRaw = document.getElementById('send-ves-account').value;
+    const vesAccount = vesAccountRaw.replace(/[^0-9]/g, '');
+    const vesType = document.getElementById('send-ves-type').value;
+    const name = document.getElementById('send-recipient-name').value;
+    
+    if (!name) {
+      alert('⚠️ Por favor completa el Nombre del Destinatario');
       return;
     }
-    if (vType === 'mobile' && vAccount.length !== 11) {
-      alert("El número de teléfono para Pago Móvil debe tener exactamente 11 dígitos (Ej: 04123456789)");
+    if (!vesId) {
+      alert('⚠️ Por favor completa la Cédula/RIF');
       return;
     }
-    if (vType === 'transfer' && vAccount.length !== 20) {
+    if (!vesBank) {
+      alert('⚠️ Por favor selecciona el Banco');
+      return;
+    }
+    if (!vesAccount) {
+      alert('⚠️ Por favor completa el número de ' + (vesType === 'mobile' ? 'Pago Móvil' : 'Cuenta Transferencia'));
+      return;
+    }
+
+    // Validation for Pago Móvil (11 digits)
+    if (vesType === 'mobile' && vesAccount.length !== 11) {
+      alert('⚠️ El número de Pago Móvil debe tener exactamente 11 dígitos (incluyendo el código de área)');
+      return;
+    }
+    if (vesType === 'transfer' && vesAccount.length !== 20) {
       alert("El número de cuenta bancaria en Venezuela debe tener exactamente 20 dígitos");
       return;
     }
-    recipient = vName;
+    recipient = name;
     vesData = {
-      id: vId,
-      idPrefix: document.getElementById('ves-id-prefix')?.value || 'V',
-      bank: vBank,
-      account: vAccount,
-      type: vType
+      id: vesId,
+      idPrefix: document.getElementById('send-ves-id-prefix')?.value || 'V',
+      bank: vesBank,
+      account: vesAccount,
+      type: vesType
     };
   } else if (destCountry.code === 'COP') {
-    const cName = document.getElementById('cop-name').value;
-    const cDocType = document.getElementById('cop-doc-type').value;
-    const cId = document.getElementById('cop-id').value;
-    const cBank = document.getElementById('cop-bank').value;
-    const cAccount = document.getElementById('cop-account').value;
+    const cName = document.getElementById('send-recipient-name').value;
+    const cDocType = document.getElementById('send-cop-doc-type').value;
+    const cId = document.getElementById('send-cop-id').value;
+    const cBank = document.getElementById('send-cop-bank').value;
+    const cAccount = document.getElementById('send-cop-account').value;
     if (!cName || !cId || !cBank || !cAccount) {
       alert("Completa todos los datos de transferencia para Colombia");
       return;
@@ -251,10 +267,10 @@ async function simulateTransfer() {
       account: cAccount
     };
   } else if (destCountry.code === 'PEN') {
-    const pName = document.getElementById('pen-name').value;
-    const pMethod = document.getElementById('pen-method').value;
-    const pBank = document.getElementById('pen-bank').value;
-    const pAccount = document.getElementById('pen-account').value;
+    const pName = document.getElementById('send-recipient-name').value;
+    const pMethod = document.getElementById('send-pen-method').value;
+    const pBank = document.getElementById('send-pen-bank').value;
+    const pAccount = document.getElementById('send-pen-account').value;
     if (!pName || !pAccount) {
       alert("Completa todos los datos de transferencia para Perú");
       return;
@@ -266,9 +282,9 @@ async function simulateTransfer() {
       account: pAccount
     };
   } else if (destCountry.code === 'USD') {
-    const uName = document.getElementById('usa-name').value;
-    const uType = document.getElementById('usa-zelle-type').value;
-    const uData = document.getElementById('usa-zelle-data').value;
+    const uName = document.getElementById('send-recipient-name').value;
+    const uType = document.getElementById('send-usa-zelle-type').value;
+    const uData = document.getElementById('send-usa-zelle-data').value;
     if (!uName || !uData) {
       alert("Completa todos los campos para el envío a USA");
       return;
@@ -291,10 +307,10 @@ async function simulateTransfer() {
       data: uData
     };
   } else if (destCountry.code === 'ECS') {
-    const eName = document.getElementById('ecs-name').value;
-    const eId = document.getElementById('ecs-id').value;
-    const eBank = document.getElementById('ecs-bank').value;
-    const eAccount = document.getElementById('ecs-account').value;
+    const eName = document.getElementById('send-recipient-name').value;
+    const eId = document.getElementById('send-ecs-id').value;
+    const eBank = document.getElementById('send-ecs-bank').value;
+    const eAccount = document.getElementById('send-ecs-account').value;
     if (!eName || !eId || !eBank || !eAccount) {
       alert("Completa todos los datos de transferencia para Ecuador");
       return;
@@ -306,11 +322,11 @@ async function simulateTransfer() {
       account: eAccount
     };
   } else if (destCountry.code === 'CLP') {
-    const cName = document.getElementById('clp-name').value;
-    const cId = document.getElementById('clp-id').value;
-    const cBank = document.getElementById('clp-bank').value;
-    const cType = document.getElementById('clp-type').value;
-    const cAccount = document.getElementById('clp-account').value;
+    const cName = document.getElementById('send-recipient-name').value;
+    const cId = document.getElementById('send-clp-id').value;
+    const cBank = document.getElementById('send-clp-bank').value;
+    const cType = document.getElementById('send-clp-type').value;
+    const cAccount = document.getElementById('send-clp-account').value;
     if (!cName || !cId || !cBank || !cAccount || !cType) {
       alert("Completa todos los datos de transferencia para Chile");
       return;
@@ -323,7 +339,7 @@ async function simulateTransfer() {
       account: cAccount
     };
   } else {
-    recipient = document.getElementById('recipient-name')?.value;
+    recipient = document.getElementById('send-recipient-name')?.value;
     if (!recipient) {
       alert("Completa el Nombre del Destinatario");
       return;
@@ -401,7 +417,7 @@ async function simulateTransfer() {
       currentTransfer = tx;
 
       // Save beneficiary if checkbox is checked
-      const saveBtn = document.getElementById('save-beneficiary');
+      const saveBtn = document.getElementById('send-save-beneficiary');
       if (saveBtn && saveBtn.checked) {
         await saveBeneficiaryToProfile(tx);
       }
@@ -417,9 +433,17 @@ async function simulateTransfer() {
       document.getElementById('payment-proof').value = '';
       const dropSelect = document.getElementById('saved-beneficiaries-select');
       if (dropSelect) dropSelect.value = '';
-      const saveBtnClear = document.getElementById('save-beneficiary');
+      const saveBtnClear = document.getElementById('send-save-beneficiary');
       if (saveBtnClear) saveBtnClear.checked = false;
-      const fieldsToClear = ['ves-name', 'ves-id', 'ves-bank', 'ves-account', 'cop-name', 'cop-id', 'cop-account', 'pen-name', 'pen-account', 'usa-name', 'usa-zelle-data', 'ecs-name', 'ecs-id', 'ecs-account', 'clp-name', 'clp-id', 'clp-account', 'clp-email', 'recipient-name', 'tx-note'];
+      const fieldsToClear = [
+        'send-recipient-name', 'send-ves-id', 'send-ves-bank', 'send-ves-account',
+        'send-cop-id', 'send-cop-bank', 'send-cop-account',
+        'send-pen-bank', 'send-pen-account',
+        'send-usa-zelle-data',
+        'send-ecs-id', 'send-ecs-bank', 'send-ecs-account',
+        'send-clp-id', 'send-clp-bank', 'send-clp-account',
+        'tx-note'
+      ];
       fieldsToClear.forEach(f => {
         const el = document.getElementById(f);
         if (el) el.value = '';

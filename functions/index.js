@@ -4,7 +4,7 @@ const { setGlobalOptions } = require('firebase-functions');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { initializeApp } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 const { getMessaging } = require('firebase-admin/messaging');
 
 setGlobalOptions({ maxInstances: 1, region: 'us-central1' });
@@ -209,14 +209,25 @@ exports.onTransferStatusChanged = onDocumentUpdated(
             return;
         }
 
-        // Look up user's FCM token
+        // Look up user's FCM tokens (multi-device)
         const userDoc = await db.collection('users').doc(userId).get();
-        if (!userDoc.exists || !userDoc.data().fcmToken) {
-            console.warn(`[notify] No FCM token for user ${userId} — skipping.`);
+        if (!userDoc.exists) {
+            console.warn(`[notify] User doc not found for ${userId}`);
             return;
         }
 
-        const token = userDoc.data().fcmToken;
+        const userData = userDoc.data();
+        // Collect all tokens: from array (new) and legacy single field
+        const tokenSet = new Set();
+        if (Array.isArray(userData.fcmTokens)) userData.fcmTokens.forEach(t => t && tokenSet.add(t));
+        if (userData.fcmToken) tokenSet.add(userData.fcmToken);
+        const tokens = [...tokenSet];
+
+        if (tokens.length === 0) {
+            console.warn(`[notify] No FCM tokens for user ${userId} — skipping.`);
+            return;
+        }
+
         const recipientName = after.name || 'destinatario';
 
         let title, body;
@@ -229,32 +240,60 @@ exports.onTransferStatusChanged = onDocumentUpdated(
             body = `Tu envío hacia ${recipientName} fue rechazado. Motivo: ${reason}`;
         }
 
-        const message = {
-            token,
-            notification: { title, body },
-            webpush: {
-                notification: {
-                    icon: '/logo-enmssell.webp',
-                    badge: '/logo-enmssell.webp',
-                    vibrate: [200, 100, 200],
-                    tag: `transfer-${event.params.transferId}`,
-                },
-            },
-        };
+        const staleTokens = [];
+        let sentCount = 0;
 
-        try {
-            await getMessaging().send(message);
-            console.log(`[notify] ✅ Push sent to ${userId} — ${newStatus}`);
-        } catch (err) {
-            console.error(`[notify] Failed to send push to ${userId}:`, err.message);
-            // If token is invalid, clean it up
-            if (
-                err.code === 'messaging/registration-token-not-registered' ||
-                err.code === 'messaging/invalid-registration-token'
-            ) {
-                await db.collection('users').doc(userId).update({ fcmToken: null });
-                console.log(`[notify] Cleaned up stale token for ${userId}`);
+        for (const token of tokens) {
+            try {
+                await getMessaging().send({
+                    token,
+                    notification: { title, body },
+                    webpush: {
+                        notification: {
+                            icon: 'https://enmssellchanges-premium.web.app/logo-enmssell.png',
+                            badge: 'https://enmssellchanges-premium.web.app/logo-enmssell.png',
+                            vibrate: [200, 100, 200],
+                            tag: `transfer-${event.params.transferId}`,
+                        },
+                    },
+                });
+                sentCount++;
+            } catch (err) {
+                console.warn(`[notify] Failed for token ${token.substring(0,15)}...:`, err.message);
+                if (
+                    err.code === 'messaging/registration-token-not-registered' ||
+                    err.code === 'messaging/invalid-registration-token'
+                ) {
+                    staleTokens.push(token);
+                }
             }
+        }
+
+        console.log(`[notify] ✅ Sent to ${sentCount}/${tokens.length} devices for ${userId} — ${newStatus}`);
+
+        // Clean up invalid tokens
+        if (staleTokens.length > 0) {
+            const validTokens = tokens.filter(t => !staleTokens.includes(t));
+            await db.collection('users').doc(userId).update({
+                fcmTokens: validTokens,
+                fcmToken: validTokens[0] || null
+            });
+            console.log(`[notify] Removed ${staleTokens.length} stale token(s) for ${userId}`);
+        }
+
+        // --- Save Notification to Firestore ---
+        try {
+            await db.collection('users').doc(userId).collection('notifications').add({
+                title,
+                body,
+                type: newStatus,
+                transferId: event.params.transferId,
+                timestamp: FieldValue.serverTimestamp(),
+                read: false
+            });
+            console.log(`[notify] ✅ Saved notification to db for ${userId}`);
+        } catch (err) {
+            console.error(`[notify] Failed to save notification to db for ${userId}:`, err.message);
         }
     }
 );
@@ -276,46 +315,82 @@ exports.sendPromoNotification = onCall(
             throw new HttpsError('invalid-argument', 'Título y mensaje son requeridos.');
         }
 
-        // Get all users with FCM tokens
-        const usersSnap = await db.collection('users').where('fcmToken', '!=', null).get();
-        if (usersSnap.empty) {
+        // Get all users with FCM tokens (new array field or legacy field)
+        const usersSnap = await db.collection('users')
+            .where('fcmTokens', '!=', null)
+            .get();
+        // Also get legacy single-token users who may not have fcmTokens yet
+        const legacySnap = await db.collection('users')
+            .where('fcmToken', '!=', null)
+            .get();
+
+        // Merge both snapshots by userId
+        const userTokenMap = new Map();
+        legacySnap.forEach(doc => {
+            const t = doc.data().fcmToken;
+            if (t) userTokenMap.set(doc.id, new Set([t]));
+        });
+        usersSnap.forEach(doc => {
+            const arr = doc.data().fcmTokens;
+            if (Array.isArray(arr) && arr.length > 0) {
+                const existing = userTokenMap.get(doc.id) || new Set();
+                arr.forEach(t => t && existing.add(t));
+                userTokenMap.set(doc.id, existing);
+            }
+        });
+
+        if (userTokenMap.size === 0) {
             return { sent: 0, message: 'No hay usuarios con notificaciones activas.' };
         }
 
-        const tokens = [];
-        usersSnap.forEach(doc => {
-            const t = doc.data().fcmToken;
-            if (t) tokens.push(t);
-        });
-
-        if (tokens.length === 0) {
-            return { sent: 0, total: 0, message: 'No hay tokens válidos.' };
-        }
-
-        const message = {
+        const notifMsg = {
             notification: { title, body },
             webpush: {
                 notification: {
-                    icon: '/logo-enmssell.webp',
-                    badge: '/logo-enmssell.webp',
+                    icon: 'https://enmssellchanges-premium.web.app/logo-enmssell.png',
+                    badge: 'https://enmssellchanges-premium.web.app/logo-enmssell.png',
                     vibrate: [200, 100, 200],
                 },
             },
         };
 
         let successCount = 0;
-        // Send individually to handle invalid tokens gracefully
-        for (const t of tokens) {
-            try {
-                await getMessaging().send({ ...message, token: t });
-                successCount++;
-            } catch (err) {
-                console.warn(`[promo] Failed for token ${t.substring(0, 15)}...:`, err.message);
+        let batch = db.batch();
+        let opsCount = 0;
+        const docIds = [...userTokenMap.keys()];
+
+        for (let i = 0; i < docIds.length; i++) {
+            const userId = docIds[i];
+            const tokenSet = userTokenMap.get(userId);
+
+            for (const t of tokenSet) {
+                try {
+                    await getMessaging().send({ ...notifMsg, token: t });
+                    successCount++;
+                } catch (err) {
+                    console.warn(`[promo] Failed for token ${t.substring(0, 15)}...:`, err.message);
+                }
+            }
+
+            // Save to Firestore notifications collection
+            const notifRef = db.collection('users').doc(userId).collection('notifications').doc();
+            batch.set(notifRef, {
+                title, body,
+                type: 'promo',
+                timestamp: FieldValue.serverTimestamp(),
+                read: false
+            });
+
+            opsCount++;
+            if (opsCount >= 400 || i === docIds.length - 1) {
+                try { await batch.commit(); batch = db.batch(); opsCount = 0; }
+                catch (e) { console.warn('[promo] Error committing batch:', e); }
             }
         }
 
-        console.log(`[promo] ✅ Sent to ${successCount}/${tokens.length} users`);
-        return { sent: successCount, total: tokens.length };
+        const totalDevices = [...userTokenMap.values()].reduce((s, set) => s + set.size, 0);
+        console.log(`[promo] ✅ Sent to ${successCount}/${totalDevices} devices across ${docIds.length} users`);
+        return { sent: successCount, total: totalDevices };
     }
 );
 

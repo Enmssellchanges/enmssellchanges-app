@@ -138,6 +138,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Safety-net: if Firebase wasn't ready at script-load time, register now
   startFirebaseListeners();
+  
+  // Notification State
+  window.userNotificationsUnsubscribe = null;
+  window.currentNotifications = [];
+  window.allNotificationsLoaded = false;
+  window.notificationsLimit = 10;
 
   // Auto-refresh admin data every 5 minutes if visible
   setInterval(() => {
@@ -157,6 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
   auth.onAuthStateChanged(firebaseUser => {
     if (firebaseUser) {
       checkPromotion();
+      
+      // Start Notifications Listener
+      startNotificationsListener();
+
       db.collection('transfers').where('userId', '==', firebaseUser.uid).onSnapshot(snapshot => {
         const txs = [];
         snapshot.forEach(doc => txs.push({
@@ -224,6 +234,165 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// ── Notificaciones de Usuario ──────────────────────────────────────────────────
+function startNotificationsListener(limitParams = 10) {
+    if (!auth || !auth.currentUser) return;
+    
+    if (window.userNotificationsUnsubscribe) {
+        window.userNotificationsUnsubscribe();
+    }
+    
+    window.notificationsLimit = limitParams;
+    
+    const query = db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .collection('notifications')
+                    .orderBy('createdAt', 'desc')
+                    .limit(window.notificationsLimit);
+                    
+    window.userNotificationsUnsubscribe = query.onSnapshot(snapshot => {
+        const notifs = [];
+        let unreadCount = 0;
+        let isInitialLoad = !window.currentNotifications.length;
+        let newNotifAdded = false;
+        
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            notifs.push({ id: doc.id, ...data });
+            if (!data.read) unreadCount++;
+        });
+        
+        // Comprobar si hay notificaciones nuevas respecto al estado anterior
+        if (!isInitialLoad && notifs.length > 0 && window.currentNotifications.length > 0) {
+            const currentHeadId = window.currentNotifications[0].id;
+            const newHeadId = notifs[0].id;
+            if (currentHeadId !== newHeadId && !notifs[0].read) {
+                newNotifAdded = true;
+            }
+        }
+        
+        window.currentNotifications = notifs;
+        
+        // Update unread badge in logic
+        const badge = document.getElementById('nav-notifications-badge'); // Update the badge if present
+        if (badge) {
+            if (unreadCount > 0) {
+                badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        if (snapshot.docs.length < window.notificationsLimit) {
+            window.allNotificationsLoaded = true;
+        } else {
+            window.allNotificationsLoaded = false;
+        }
+        
+        if (newNotifAdded) {
+            playNotificationSound();
+        }
+        
+        // Update view if open
+        const viewNotifications = document.getElementById('view-notifications');
+        if (viewNotifications && viewNotifications.style.display !== 'none') {
+            renderNotifications();
+        }
+        
+    }, err => console.error("Error fetching notifications:", err));
+}
+
+window.loadUserNotifications = function(loadMore = false) {
+    if (loadMore) {
+        startNotificationsListener(window.notificationsLimit + 10);
+    } else {
+        renderNotifications();
+        markAllNotificationsAsRead();
+    }
+}
+
+function renderNotifications() {
+    const list = document.getElementById('notifications-list');
+    const loadBtn = document.getElementById('btn-load-more-notifications');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    
+    if (window.currentNotifications.length === 0) {
+        list.innerHTML = `<div class="p-4 text-center text-gray-400">No tienes notificaciones por el momento...</div>`;
+        if (loadBtn) loadBtn.style.display = 'none';
+        return;
+    }
+    
+    window.currentNotifications.forEach(notif => {
+        const dateObj = notif.createdAt ? (notif.createdAt.toDate ? notif.createdAt.toDate() : new Date(notif.createdAt)) : new Date();
+        const dateStr = dateObj.toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+        
+        // Cambiar el diseño visual para notificaciones leídas/no leídas
+        const dotHtml = notif.read ? '' : `<div class="status-dot tooltip" data-tooltip="No leída" style="background:var(--gold); width:10px; height:10px; border-radius:50%; margin-right:10px;"></div>`;
+        const readOpacity = notif.read ? 'opacity: 0.7;' : 'opacity: 1;';
+        
+        const item = document.createElement('div');
+        item.className = 'transaction-card glass fade-in relative mb-sm';
+        item.style.cssText = `${readOpacity} display: flex; align-items: flex-start;`;
+        
+        item.innerHTML = `
+            ${dotHtml}
+            <div style="flex: 1;">
+                <div class="flex-align-center" style="justify-content: space-between;">
+                    <strong class="text-gold" style="font-size:1.1rem; display:block;">${notif.title || 'Notificación'}</strong>
+                    <span class="text-muted" style="font-size:0.8rem;">${dateStr}</span>
+                </div>
+                <div class="text-white mt-xs" style="line-height:1.4; word-break: break-word;">${notif.message || ''}</div>
+            </div>
+        `;
+        
+        // Al hacer click en una no leída, marcar como leída
+        if (!notif.read && auth.currentUser) {
+            item.onclick = () => {
+                db.collection('users')
+                    .doc(auth.currentUser.uid)
+                    .collection('notifications')
+                    .doc(notif.id)
+                    .update({ read: true }).catch(err => console.error(err));
+            };
+        }
+        
+        list.appendChild(item);
+    });
+    
+    if (loadBtn) {
+        loadBtn.style.display = window.allNotificationsLoaded ? 'none' : 'inline-block';
+    }
+}
+
+function markAllNotificationsAsRead() {
+    if (!auth || !auth.currentUser) return;
+    let hasUnread = false;
+    
+    window.currentNotifications.forEach(notif => {
+        if (!notif.read) {
+            hasUnread = true;
+            db.collection('users')
+                .doc(auth.currentUser.uid)
+                .collection('notifications')
+                .doc(notif.id)
+                .update({ read: true }).catch(err => console.error(err));
+        }
+    });
+    
+    if (hasUnread) {
+        // Optimistically remove badge
+        const badge = document.getElementById('nav-notifications-badge'); 
+        if (badge) badge.style.display = 'none';
+        
+        // Local render unread items to transparent until snapshot triggers update
+        Array.from(document.querySelectorAll('#notifications-list .status-dot')).forEach(el => el.style.display = 'none');
+    }
+}
+
 // ── Binance P2P Monitor ──────────────────────────────────────────────────────
 let binanceInterval = null;
 /**

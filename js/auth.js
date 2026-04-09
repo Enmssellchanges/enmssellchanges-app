@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateAuthUI();
                 loadUserProfile();
 
-                requestNotificationPermission();
+                // requestNotificationPermission(); // Removed to prevent browser auto-block
 
                 // Auto-seed data only for the authorized admin
                 if (isAdmin && db) {
@@ -59,12 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ── Modal de Login ──────────────────────────────────────────────────────────────────
 
-/**
- * Abre el modal de inicio de sesión y pre-rellena el teléfono y país
- * guardados en localStorage de la última sesión.
- */
 function openLogin() {
     document.getElementById('login-modal').style.display = 'flex';
+    toggleLoginMode();
+
     // Pre-fill last used phone number
     const savedCountry = localStorage.getItem('enmsell_phone_country');
     const savedPhone = localStorage.getItem('enmsell_phone_number');
@@ -78,19 +76,76 @@ function openLogin() {
     }
 }
 
-/**
- * Cierra el modal de inicio de sesión y resetea el flujo de OTP
- * para que la próxima apertura inicie desde el paso del número de teléfono.
- */
 function closeLogin() {
     document.getElementById('login-modal').style.display = 'none';
-    // Reset phone login state when closing
-    const otpSection = document.getElementById('phone-otp-section');
+    
+    // Reset login state when closing
     const phoneSection = document.getElementById('phone-login-section');
-    if (otpSection) otpSection.style.display = 'none';
+    const otpSection = document.getElementById('phone-otp-section');
+    const createPwdSection = document.getElementById('create-password-section');
+    
     if (phoneSection) phoneSection.style.display = 'block';
+    if (otpSection) otpSection.style.display = 'none';
+    if (createPwdSection) createPwdSection.style.display = 'none';
+    
     const otpInput = document.getElementById('phone-otp-input');
     if (otpInput) otpInput.value = '';
+    const loginPwd = document.getElementById('login-password-input');
+    if (loginPwd) loginPwd.value = '';
+    const createPwd1 = document.getElementById('create-password-input');
+    if (createPwd1) createPwd1.value = '';
+    const createPwd2 = document.getElementById('create-password-confirm');
+    if (createPwd2) createPwd2.value = '';
+    
+    toggleLoginMode();
+}
+
+function toggleLoginMode() {
+    window.authMode = 'login';
+    const titleEl = document.getElementById('modal-main-title');
+    const subEl = document.getElementById('modal-main-subtitle');
+    const hintEl = document.getElementById('register-hint');
+    const loginHintEl = document.getElementById('login-hint');
+    const pwdContainer = document.getElementById('login-password-container');
+    const btnMain = document.getElementById('btn-login-main');
+    const errorMsg = document.getElementById('login-error-msg');
+    
+    if (errorMsg) {
+        errorMsg.style.display = "none";
+        errorMsg.innerText = "";
+    }
+    
+    if (titleEl) titleEl.innerText = "Iniciar Sesión";
+    if (subEl) subEl.innerText = "Ingresa tu número para entrar a tu billetera";
+    if (hintEl) hintEl.style.display = "block";
+    if (loginHintEl) loginHintEl.style.display = "none";
+    if (pwdContainer) pwdContainer.style.display = "block";
+    if (btnMain) btnMain.innerText = "Iniciar sesión";
+}
+
+function toggleRegisterMode() {
+    window.authMode = 'register';
+    const titleEl = document.getElementById('modal-main-title');
+    const subEl = document.getElementById('modal-main-subtitle');
+    const hintEl = document.getElementById('register-hint');
+    const loginHintEl = document.getElementById('login-hint');
+    const pwdContainer = document.getElementById('login-password-container');
+    const btnMain = document.getElementById('btn-login-main');
+    const errorMsg = document.getElementById('login-error-msg');
+
+    if (errorMsg) {
+        errorMsg.style.display = "none";
+        errorMsg.innerText = "";
+    }
+
+    if (titleEl) titleEl.innerText = "Registrarse";
+    if (subEl) subEl.innerText = "Ingresa tu número para crear tu cuenta";
+    if (hintEl) hintEl.style.display = "none";
+    if (loginHintEl) loginHintEl.style.display = "block";
+    if (pwdContainer) pwdContainer.style.display = "none";
+    if (btnMain) btnMain.innerText = "Continuar";
+    
+    document.getElementById('phone-login-input').focus();
 }
 
 // ── Autenticación por Teléfono (SMS / OTP) ───────────────────────────────────────────────
@@ -98,11 +153,28 @@ var phoneConfirmationResult = null;
 var recaptchaVerifier = null;
 
 /**
- * Inicializa el reCAPTCHA invisible de Firebase una única vez.
- * Si ya existe un verificador activo, no hace nada.
+ * Inicializa o reinicializa el reCAPTCHA invisible de Firebase.
+ * Destruye correctamente cualquier widget previo antes de crear uno nuevo
+ * para evitar el error "reCAPTCHA has already been rendered in this element".
  */
 function setupRecaptcha() {
-    if (recaptchaVerifier) return; // Already set up
+    // 1. Destruir el verificador de Firebase si existe
+    if (recaptchaVerifier) {
+        try { recaptchaVerifier.clear(); } catch (e) { console.warn('reCAPTCHA clear:', e); }
+        recaptchaVerifier = null;
+    }
+
+    // 2. Reemplazar el nodo del contenedor por uno completamente nuevo.
+    //    Limpiar innerHTML NO es suficiente: Firebase registra el widget
+    //    contra el nodo original y vuelve a lanzar "already rendered"
+    //    al intentar crear un nuevo RecaptchaVerifier en él.
+    const oldContainer = document.getElementById('recaptcha-container');
+    if (oldContainer && oldContainer.parentNode) {
+        const newContainer = document.createElement('div');
+        newContainer.id = 'recaptcha-container';
+        oldContainer.parentNode.replaceChild(newContainer, oldContainer);
+    }
+
     recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         size: 'invisible',
         callback: () => { }
@@ -110,43 +182,112 @@ function setupRecaptcha() {
     recaptchaVerifier.render().catch(err => console.warn('reCAPTCHA render:', err));
 }
 
-/**
- * Maneja el envío del código SMS al número de teléfono introducido.
- * Construye el número completo (prefijo de país + número local), inicializa
- * el reCAPTCHA y llama a `signInWithPhoneNumber`. Si tiene éxito, muestra
- * el campo de OTP y recuerda el teléfono en localStorage.
- */
-function handlePhoneSendCode() {
+async function submitAuthAction() {
+    const isLogin = window.authMode !== 'register';
     const countrySelect = document.getElementById('phone-country-select');
     const phoneInput = document.getElementById('phone-login-input');
-    const btn = document.getElementById('btn-send-sms');
+    const pwdInput = document.getElementById('login-password-input');
+    const btn = document.getElementById('btn-login-main');
+    const errorMsg = document.getElementById('login-error-msg');
+
+    if (errorMsg) {
+        errorMsg.style.display = "none";
+        errorMsg.innerText = "";
+    }
+
+    function showError(msg) {
+        if (errorMsg) {
+            errorMsg.innerText = msg;
+            errorMsg.style.display = "block";
+        } else {
+            alert(msg);
+        }
+    }
 
     if (!phoneInput || !phoneInput.value.trim()) {
-        alert('Por favor ingresa tu número de teléfono.');
+        showError('Por favor ingresa tu número de teléfono.');
         return;
     }
 
     let countryCode = countrySelect.value;
-    // Handle USA special case
     if (countryCode === '+1-US') countryCode = '+1';
 
-    const fullNumber = countryCode + phoneInput.value.trim();
+    window.currentPhoneNumber = countryCode + phoneInput.value.trim();
+    // Creamos email sintético sin el signo '+'
+    window.currentSyntheticEmail = `${window.currentPhoneNumber.replace('+', '')}@enmssell.com`;
 
+    if (isLogin) {
+        if (!pwdInput || !pwdInput.value) {
+            showError('Por favor ingresa tu contraseña.');
+            return;
+        }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-icons spin" style="font-size:16px; vertical-align:middle;">autorenew</span> Verificando...';
+        
+        try {
+            await firebase.auth().signInWithEmailAndPassword(window.currentSyntheticEmail, pwdInput.value);
+            closeLogin();
+        } catch (e) {
+            console.error(e);
+            showError("Contraseña incorrecta o usuario no registrado.");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Iniciar sesión";
+        }
+    } else {
+        // Flujo de Registro
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-icons spin" style="font-size:16px; vertical-align:middle;">autorenew</span> Verificando...';
+
+        try {
+            const methods = await firebase.auth().fetchSignInMethodsForEmail(window.currentSyntheticEmail);
+            if (methods.includes('password')) {
+                showError("Este número ya está registrado. Por favor, inicia sesión.");
+                toggleLoginMode();
+                btn.disabled = false;
+                btn.innerText = "Iniciar sesión";
+            } else {
+                sendOTP();
+                // We re-enable it in case SMS fails or returns quickly
+                setTimeout(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerText = "Continuar";
+                    }
+                }, 1000);
+            }
+        } catch (e) {
+            console.error("Error validando usuario:", e);
+            sendOTP();
+            btn.disabled = false;
+            btn.innerText = "Continuar";
+        }
+    }
+}
+
+/**
+ * Función interna para enviar el SMS utilizando recaptcha
+ */
+function sendOTP() {
     setupRecaptcha();
 
-    btn.disabled = true;
-    btn.innerHTML = '<span class="material-icons spin" style="font-size:16px; vertical-align:middle;">autorenew</span> Enviando...';
+    // Guardamos el número
+    const countrySelect = document.getElementById('phone-country-select');
+    const phoneInput = document.getElementById('phone-login-input');
+    localStorage.setItem('enmsell_phone_country', countrySelect.value);
+    localStorage.setItem('enmsell_phone_number', phoneInput.value.trim());
 
-    firebase.auth().signInWithPhoneNumber(fullNumber, recaptchaVerifier)
+    firebase.auth().signInWithPhoneNumber(window.currentPhoneNumber, recaptchaVerifier)
         .then(confirmationResult => {
             phoneConfirmationResult = confirmationResult;
-            // Remember phone for next time
-            localStorage.setItem('enmsell_phone_country', countrySelect.value);
-            localStorage.setItem('enmsell_phone_number', phoneInput.value.trim());
-            // Show OTP input
-            document.getElementById('phone-login-section').style.display = 'none';
-            document.getElementById('phone-otp-section').style.display = 'block';
-            document.getElementById('phone-otp-input').focus();
+            const phoneLoginSection = document.getElementById('phone-login-section');
+            const createPwdSection = document.getElementById('create-password-section');
+            const otpSection = document.getElementById('phone-otp-section');
+            const otpInput = document.getElementById('phone-otp-input');
+            if (phoneLoginSection) phoneLoginSection.style.display = 'none';
+            if (createPwdSection) createPwdSection.style.display = 'none';
+            if (otpSection) otpSection.style.display = 'block';
+            if (otpInput) otpInput.focus();
         })
         .catch(err => {
             console.error('SMS error:', err);
@@ -156,18 +297,71 @@ function handlePhoneSendCode() {
             else if (err.code === 'auth/quota-exceeded') msg += 'Se alcanzó el límite de SMS. Intenta más tarde.';
             else msg += err.message;
             alert(msg);
-            // Reset reCAPTCHA for retry
-            recaptchaVerifier = null;
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerHTML = '<span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">sms</span> Enviar Código SMS';
+            // Destruir el widget correctamente para permitir un nuevo intento
+            if (recaptchaVerifier) {
+                try { recaptchaVerifier.clear(); } catch (e) {}
+                recaptchaVerifier = null;
+            }
+            const container = document.getElementById('recaptcha-container');
+            if (container) container.innerHTML = '';
         });
 }
 
+function handleForgotPassword() {
+    const countrySelect = document.getElementById('phone-country-select');
+    const phoneInput = document.getElementById('phone-login-input');
+    const errorMsg = document.getElementById('login-error-msg');
+
+    if (!phoneInput || !phoneInput.value.trim()) {
+        if (errorMsg) {
+            errorMsg.innerText = 'Ingresa tu número de teléfono para restablecer la contraseña.';
+            errorMsg.style.display = 'block';
+        } else {
+            alert('Ingresa tu número de teléfono.');
+        }
+        return;
+    }
+
+    let countryCode = countrySelect ? countrySelect.value : '+56';
+    if (countryCode === '+1-US') countryCode = '+1';
+
+    window.currentPhoneNumber = countryCode + phoneInput.value.trim();
+    window.currentSyntheticEmail = `${window.currentPhoneNumber.replace('+', '')}@enmssell.com`;
+
+    sendOTP();
+}
+
+async function handlePasswordLogin() {
+    // This is kept here to not break anything calling it, but it's largely superseded by submitAuthAction()
+    const pwd = document.getElementById('login-password-input').value;
+    if (!pwd) {
+        alert("Ingresa tu contraseña.");
+        return;
+    }
+
+    const btn = document.getElementById('btn-login-main'); // the new button
+    if (btn) {
+        btn.disabled = true;
+        btn.innerText = "Verificando...";
+    }
+
+    try {
+        await firebase.auth().signInWithEmailAndPassword(window.currentSyntheticEmail, pwd);
+        closeLogin();
+    } catch (e) {
+        console.error(e);
+        alert("Contraseña incorrecta o usuario no encontrado.");
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerText = "Iniciar sesión";
+        }
+    }
+}
+
 /**
- * Verifica el código OTP introducido por el usuario contra `phoneConfirmationResult`.
- * Si el código es correcto, cierra el modal de login y limpia el estado de auth.
+ * Verifica el código OTP. Si es correcto, asocia el email sintético
+ * si aún no lo tiene, y lleva al usuario a crear su contraseña.
  */
 function handlePhoneVerifyCode() {
     const otpInput = document.getElementById('phone-otp-input');
@@ -182,8 +376,13 @@ function handlePhoneVerifyCode() {
     }
 
     phoneConfirmationResult.confirm(otpInput.value.trim())
-        .then(() => {
-            closeLogin();
+        .then(async (result) => {
+            // No llamamos updateEmail aquí: linkWithCredential en el siguiente paso lo maneja
+            const otpSection = document.getElementById('phone-otp-section');
+            const createPwdSection = document.getElementById('create-password-section');
+            if (otpSection) otpSection.style.display = 'none';
+            if (createPwdSection) createPwdSection.style.display = 'block';
+
             phoneConfirmationResult = null;
             recaptchaVerifier = null;
         })
@@ -195,6 +394,59 @@ function handlePhoneVerifyCode() {
                 alert('Error al verificar el código: ' + err.message);
             }
         });
+}
+
+async function handleCreatePassword() {
+    const pwd1 = document.getElementById('create-password-input').value;
+    const pwd2 = document.getElementById('create-password-confirm').value;
+
+    if (!pwd1 || pwd1.length < 6) {
+        alert("La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
+    if (pwd1 !== pwd2) {
+        alert("Las contraseñas no coinciden.");
+        return;
+    }
+
+    const btn = document.getElementById('btn-create-password');
+    if (btn) { btn.disabled = true; btn.innerText = "Guardando..."; }
+
+    const currentUser = firebase.auth().currentUser;
+    if (!currentUser) {
+        alert("Error: sesión no encontrada. Intenta de nuevo.");
+        if (btn) { btn.disabled = false; btn.innerText = "Guardar Contraseña"; }
+        return;
+    }
+
+    const email = window.currentSyntheticEmail;
+
+    try {
+        // Verificar si ya tiene proveedor email/password vinculado
+        const hasEmailProvider = currentUser.providerData.some(p => p.providerId === 'password');
+
+        if (hasEmailProvider) {
+            // Flujo de restablecimiento: solo actualizar la contraseña
+            await currentUser.updatePassword(pwd1);
+        } else {
+            // Flujo de registro: vincular email sintético + contraseña como nuevo proveedor
+            const credential = firebase.auth.EmailAuthProvider.credential(email, pwd1);
+            await currentUser.linkWithCredential(credential);
+        }
+
+        closeLogin();
+    } catch (e) {
+        console.error("Error al guardar contraseña:", e);
+        if (e.code === 'auth/requires-recent-login') {
+            alert("Por seguridad, vuelve a verificar tu número para cambiar la contraseña.");
+        } else if (e.code === 'auth/email-already-in-use') {
+            alert("Este número ya tiene una cuenta. Por favor inicia sesión con tu contraseña.");
+        } else {
+            alert("Error al guardar la contraseña: " + e.message);
+        }
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerText = "Guardar Contraseña"; }
+    }
 }
 
 // ── Autenticación con Google ─────────────────────────────────────────────────────────────
@@ -251,6 +503,10 @@ function updateAuthUI() {
     if (authContainer) {
         authContainer.innerHTML = `
     <div style="display: flex; align-items: center; gap: 1rem;">
+        <div id="nav-notifications-bell" style="position: relative; cursor: pointer; display: flex; align-items: center; margin-right: 0.5rem;" onclick="handleNotificationBellClick()">
+            <span class="material-icons" style="font-size: 24px; color: var(--gold-light);">notifications</span>
+            <span id="nav-notifications-badge" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--error); color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; font-weight: bold; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">0</span>
+        </div>
         <img src="${user.photo || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--gold); cursor: pointer;" onclick="showView('profile')">
         <span class="user-name-display" style="font-weight: 600; cursor: pointer;" onclick="showView('profile')">Hola, ${user.name || 'Usuario'}</span>
         <button class="btn-signin" style="padding: 0.4rem 1rem;" onclick="handleLogout()">Salir</button>
@@ -287,7 +543,7 @@ function updateAuthUI() {
 function resetAuthUI() {
     const authContainer = document.getElementById('auth-container');
     if (authContainer) {
-        authContainer.innerHTML = `<button class="btn-signin" onclick="openLogin()">Registrarse</button>`;
+        authContainer.innerHTML = `<button class="btn-signin" onclick="openLogin()">Iniciar sesión</button>`;
     }
     const adminNav = document.getElementById('nav-admin');
     if (adminNav) adminNav.style.display = 'none';
@@ -331,6 +587,7 @@ async function loadUserProfile() {
         const nameInput = document.getElementById('user-full-name');
         const phoneInput = document.getElementById('user-phone');
         const rutInput = document.getElementById('user-rut');
+        const soundInput = document.getElementById('user-notification-sound');
 
         // Pre-fill sender-name in the payment form
         const senderNameField = document.getElementById('sender-name');
@@ -348,6 +605,7 @@ async function loadUserProfile() {
             if (nameInput) nameInput.value = data.fullName || user.name || '';
             if (phoneInput) phoneInput.value = data.phone || '';
             if (rutInput) rutInput.value = data.rut || '';
+            if (soundInput) soundInput.value = data.notificationSound || 'default';
 
             if (nameDisplay) nameDisplay.innerText = data.fullName || user.name || 'Usuario';
             if (emailDisplay) emailDisplay.innerText = user.email || '';
@@ -388,11 +646,13 @@ async function saveUserProfile() {
     const nameEl = document.getElementById('user-full-name');
     const phoneEl = document.getElementById('user-phone');
     const rutEl = document.getElementById('user-rut');
+    const soundEl = document.getElementById('user-notification-sound');
 
     const profile = {
         fullName: nameEl ? nameEl.value : '',
         phone: phoneEl ? phoneEl.value : '',
         rut: rutEl ? rutEl.value : '',
+        notificationSound: soundEl ? soundEl.value : 'default',
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -436,3 +696,20 @@ function closeLogoutModal() {
     if (modal) modal.style.display = 'none';
     showView('home');
 }
+
+/**
+ * Muestra u oculta la contraseña en los campos de input.
+ */
+window.togglePasswordVisibility = function(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (!input || !icon) return;
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerText = 'visibility';
+    } else {
+        input.type = 'password';
+        icon.innerText = 'visibility_off';
+    }
+};

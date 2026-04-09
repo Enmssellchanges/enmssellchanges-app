@@ -20,8 +20,8 @@
     "path": "./signing.keystore",
     "alias": "enmssell"
   },
-  "appVersionName": "1.0.2",
-  "appVersionCode": 2,
+  "appVersionName": "1.1.0",
+  "appVersionCode": 3,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://enmssellchanges-premium.web.app/manifest.json",
@@ -41,5 +41,5 @@
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "1.0.2"
+  "appVersion": "1.1.0"
 }
